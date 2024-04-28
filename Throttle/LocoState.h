@@ -1,6 +1,5 @@
 #pragma once
 
-// const char *locoFields = "Time Bitstate Lost Throttle Speed Disatnce Battery Temp Psi";
 struct __attribute__((packed)) Loco {
   uint16_t tick;
   union {

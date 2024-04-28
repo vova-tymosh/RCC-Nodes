@@ -21,6 +21,7 @@ class Rotary {
       a = a / 930 * 100;
       int b = a / 7;
       b = b * 7;
+      //TODO fix the noise
       return b;//filter.updateEstimate(b);
     }
 };
