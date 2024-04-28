@@ -1,6 +1,10 @@
 #pragma once
 
+#include "UI.h"
+#include "ThrComms.h"
+
 extern UserInterface ui;
+extern ThrComms comms;
 
 class MenuItem {
   protected:
@@ -30,14 +34,14 @@ class MenuItemToggle: public MenuItem {
         state = 0;
       else
         state = 1;
-      Serial.println(state);
+      comms.sendFunction(index, state);
     }
 };
 
-auto mi1 = MenuItemToggle("Lights", 1);
+auto mi1 = MenuItemToggle("Lights", 0);
 auto mi2 = MenuItemToggle("Slow", 1);
-auto mi3 = MenuItemToggle("Sound", 1);
-auto mi4 = MenuItemToggle("Dude!", 1);
+auto mi3 = MenuItemToggle("Pid", 2);
+auto mi4 = MenuItemToggle("Dude!", 3);
 MenuItem *menuItem[] = {&mi1, &mi2, &mi3, &mi4};
 
 class MenuScreen {

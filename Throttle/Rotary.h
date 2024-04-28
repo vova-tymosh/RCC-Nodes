@@ -19,6 +19,8 @@ class Rotary {
       float a = analogRead(IN_PIN);
       digitalWrite(VCC_PIN, LOW);
       a = a / 930 * 100;
-      return filter.updateEstimate(a);
+      int b = a / 7;
+      b = b * 7;
+      return b;//filter.updateEstimate(b);
     }
 };

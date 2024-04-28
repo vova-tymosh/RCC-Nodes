@@ -3,6 +3,7 @@
  * 
  *  
  */
+#pragma once
 #include "Timer.h"
 #include "Wireless.h"
 
@@ -29,7 +30,16 @@ class ThrComms {
     static const char PACKET_THR_AUTH = 's';
     static const char PACKET_THR_NORM = 'p';
     static const char PACKET_LOCO_NORM = 'n';
+    static const char FUNCTION_BASE = '@';
+    static const int MAX_RETRY = 5;
     Wireless *wireless;
+
+    void write(const void* payload, uint16_t size) {
+      bool keepTrying = true;
+      for(int i = 0; i < MAX_RETRY && keepTrying; i++) {
+        keepTrying = !wireless->write(payload, size);
+      }
+    }
   public:
     typedef void (* Callback)(char code, float value);
     struct Loco {
@@ -47,13 +57,18 @@ class ThrComms {
     void authorize(byte locoAddr) {
       struct Auth cmd = {PACKET_THR_AUTH, locoAddr};
       Serial.println("Auth/Subscribe to " + String(locoAddr));
-      wireless->write(&cmd, sizeof(cmd));
+      write(&cmd, sizeof(cmd));
     }
 
     void send(char cmd, float value) {
       Command command = {PACKET_THR_NORM, cmd, value};
       Serial.println("Send " + String(cmd) + " " + String(value));
-      wireless->write(&command, sizeof(command));
+      write(&command, sizeof(command));
+    }
+
+    void sendFunction(char function, int value) {
+      function = FUNCTION_BASE + function;
+      send(function, (float)value);
     }
 
     //TODO improve/test switches between locos
@@ -91,7 +106,7 @@ class ThrComms {
           uint16_t res = wireless->read(packet, sizeof(packet));
           if (res > 1) {
             char cmd = packet[0];
-            Serial.println("Incoming " + String(cmd));
+            // Serial.println("Incoming " + String(cmd));
             switch (cmd) {
             case PACKET_THR_AUTH:
               Serial.println("Request to authorize");
@@ -99,14 +114,9 @@ class ThrComms {
               authorize(availableLocos[0].addr);
               break;
             case PACKET_LOCO_NORM:
-              //TODO handle all the fields, make Loco update standard (electric reports 0s for optional fields)
-              float fields[10];
               size_t size = res - 1;
-              memcpy(&fields, &packet[1], size);
-              Serial.println("Update "+ String(size) + "/"+String(fields[1]) + " " + String(fields[3])+ " " + String(fields[4]));
-              loco.lost = fields[1] * 100;
-              loco.temperature = abs(fields[3]);
-              loco.psi = abs(fields[4]);
+              memcpy(&loco, &packet[1], size);
+              // Serial.println("Update "+ String(size) + "/"+String(loco.tick));
               update = true;
               break;
             }
