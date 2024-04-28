@@ -45,11 +45,6 @@ Rotary rotary;
 struct Controls controls;
 
 
-
-void received(char code, float value) {
-  Serial.println("Command " + String(code) + ": " + String(value, 2));
-}
-
 void handleHotKey(char key) {
   switch (key) {
   case '1':
@@ -62,6 +57,7 @@ void handleHotKey(char key) {
       loco.battery = 0;
     break;
   case '4':
+  //TODO handle proper direction change
     if (controls.direction < 1)
       controls.direction++;
     else
@@ -91,13 +87,10 @@ void setupSerial() {
   Serial.println("Started");
 }
 
-const char *nameL = "1204";
-
 void setup() {
   setupSerial();
 
   comms.setup();
-  comms.setCallback(received);
 
 //TODO consider more to make sure Station heard us
   comms.send('a', 0);
@@ -111,25 +104,26 @@ void setup() {
 }
 
 void loop() {
-  static int oldThrottle = 0;
-
   bool update = comms.loop();
-  char key = keypad.getKey();
 
-  if (timer.hasFired()) {
-    controls.throttle = rotary.read();
+  char key = keypad.getKey();
+  if (key) {
+    Serial.println("Press " + String(key));
+    handleHotKey(key);
+    update = true;
   }
 
-  //TODO handle proper updates depands on events
-  if (key || (oldThrottle != controls.throttle) || update) {
-    if (key) {
-      Serial.println("Press " + String(key));
-      handleHotKey(key);
-    } else if (oldThrottle != controls.throttle) {
+  if (timer.hasFired()) {
+    static int oldThrottle = 0;
+    controls.throttle = rotary.read();
+    if (oldThrottle != controls.throttle) {
       oldThrottle = controls.throttle;
       comms.send('t', (float)controls.throttle);
+      update = true;
     }
+  }
 
+  if (update) {
     void *newState = state(key);
     if (newState) {
       state = (State)newState;

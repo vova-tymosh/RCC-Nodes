@@ -58,8 +58,8 @@ class UserInterface {
   private:
     static const int SCREEN_WIDTH   = 128;
     static const int SCREEN_HEIGHT  = 32;
-    static const int OLED_RESET     = -1; // Reset pin # (or -1 if sharing Arduino reset pin)
-    static const int SCREEN_ADDRESS = 0x3C; ///< See datasheet for Address; 0x3C for 128x32
+    static const int OLED_RESET     = -1;
+    static const int SCREEN_ADDRESS = 0x3C;
     const unsigned char *batteryIcons[4] = {batteryEmpty, batteryOne, batteryTwo, batteryFull};
 
   public:
@@ -74,6 +74,7 @@ class UserInterface {
     };
     
     UserInterface(): display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET) {};
+    //TODO - power save mode
 /*
     void powerOn() {
       display.ssd1306_command(SSD1306_DISPLAYON);

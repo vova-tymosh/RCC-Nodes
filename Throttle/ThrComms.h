@@ -23,8 +23,6 @@ struct __attribute__((packed)) Auth {
   uint8_t addr;
 };
 
-
-
 class ThrComms {
   private:
     static const char PACKET_THR_AUTH = 's';
@@ -41,7 +39,6 @@ class ThrComms {
       }
     }
   public:
-    typedef void (* Callback)(char code, float value);
     struct Loco {
       uint8_t addr;
       char name[NAME_SIZE];
@@ -49,10 +46,6 @@ class ThrComms {
     struct Loco availableLocos[MAX_LOCO];
 
     ThrComms(Wireless *wireless) : wireless(wireless) {};
-
-    void setCallback(Callback calback) {
-      this->callback = calback;
-    }
 
     void authorize(byte locoAddr) {
       struct Auth cmd = {PACKET_THR_AUTH, locoAddr};
@@ -106,7 +99,6 @@ class ThrComms {
           uint16_t res = wireless->read(packet, sizeof(packet));
           if (res > 1) {
             char cmd = packet[0];
-            // Serial.println("Incoming " + String(cmd));
             switch (cmd) {
             case PACKET_THR_AUTH:
               Serial.println("Request to authorize");
@@ -124,7 +116,5 @@ class ThrComms {
         }
         return update;
     }
-  private:
-    Callback callback;
 };
  
