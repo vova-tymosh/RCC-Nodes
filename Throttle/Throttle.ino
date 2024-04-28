@@ -2,20 +2,20 @@
 #include "Timer.h"
 #include "Rotary.h"
 #include "UI.h"
+#define RADIO_52
+#include "Wireless.h"
+#include "ThrComms.h"
 #include "LocoState.h"
 #include "HomeScreen.h"
 #include "MenuScreen.h"
 
-#define RADIO_52
-#include "Wireless.h"
-#include "ThrComms.h"
 
 // *** Keyboard
 const byte ROWS = 4;
 const byte COLS = 3;
 const char keys[ROWS][COLS] = {
-  {'h','m','d'},
-  {'1','2','3'},
+  {'h','m','2'},
+  {'1','d','3'},
   {'4','5','6'},
   {'7','8','9'},
 };
@@ -37,10 +37,13 @@ void* homeState(char key);
 void* menuState(char key);
 HomeScreen homeScreen(&loco);
 MenuScreen menuScreen;
+extern MenuItem *menuItem[];
 
-// *** Timer and sensors
+// *** The rest
 Timer timer;
 Rotary rotary;
+struct Controls controls;
+
 
 
 void received(char code, float value) {
@@ -50,22 +53,20 @@ void received(char code, float value) {
 void handleHotKey(char key) {
   switch (key) {
   case '1':
-    if (loco.direction < 1)
-      loco.direction++;
-    else
-      loco.direction = -1;
-    break;   
+    menuItem[0]->toggle();
+    break;
   case '2':
     if (loco.battery < 3)
       loco.battery++;
     else
       loco.battery = 0;
     break;
-  case '3':
-    if (loco.light)
-      loco.light = 0;
+  case '4':
+    if (controls.direction < 1)
+      controls.direction++;
     else
-      loco.light = 1;
+      controls.direction = -1;
+    comms.send('d', (float)controls.direction);
     break;
   }
 }
@@ -85,10 +86,8 @@ void* menuState(char key) {
   return 0;
 }
 
-//TODO remove
 void setupSerial() {
   Serial.begin(115200);
-  for (int i=0; i<5 || !Serial; i++);
   Serial.println("Started");
 }
 
@@ -96,15 +95,6 @@ const char *nameL = "1204";
 
 void setup() {
   setupSerial();
-
-//TODO remove this and use incoming
-  loco.name = (char*)nameL;
-  loco.lost = 12;
-  loco.battery = 1;
-  loco.speed = 101;
-  loco.temperature = 121;
-  loco.psi = 24;
-  loco.odo = 12030;
 
   comms.setup();
   comms.setCallback(received);
@@ -117,26 +107,27 @@ void setup() {
   state = homeState;
   state(0);
 
-  timer.start(100);
+  timer.start(500);
 }
 
 void loop() {
   static int oldThrottle = 0;
 
   bool update = comms.loop();
-
   char key = keypad.getKey();
-  loco.throttle = rotary.read();
+
+  if (timer.hasFired()) {
+    controls.throttle = rotary.read();
+  }
 
   //TODO handle proper updates depands on events
-  if (key || (oldThrottle != loco.throttle) || update) {
+  if (key || (oldThrottle != controls.throttle) || update) {
     if (key) {
       Serial.println("Press " + String(key));
       handleHotKey(key);
-      comms.send('l', (float)loco.light);
-    } else if (oldThrottle != loco.throttle) {
-      oldThrottle = loco.throttle;
-      comms.send('t', (float)loco.throttle);
+    } else if (oldThrottle != controls.throttle) {
+      oldThrottle = controls.throttle;
+      comms.send('t', (float)controls.throttle);
     }
 
     void *newState = state(key);
