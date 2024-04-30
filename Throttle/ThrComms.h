@@ -29,15 +29,10 @@ class ThrComms {
     static const char PACKET_THR_NORM = 'p';
     static const char PACKET_LOCO_NORM = 'n';
     static const char FUNCTION_BASE = '@';
-    static const int MAX_RETRY = 3;
     Wireless *wireless;
-    Command queue;
-    bool isQueueFull;
-    int queueRetries;
+    Command command;
+    Timer timer;
 
-    bool write(const void* payload, uint16_t size) {
-      return wireless->write(payload, size);
-    }
   public:
     int lost;
     int sent;
@@ -49,41 +44,18 @@ class ThrComms {
     };
     struct Loco availableLocos[MAX_LOCO];
 
-    ThrComms(Wireless *wireless) : wireless(wireless) {};
+    ThrComms(Wireless *wireless) : wireless(wireless), timer(100) {};
 
     void authorize(byte locoAddr) {
       struct Auth cmd = {PACKET_THR_AUTH, locoAddr};
       Serial.println("Auth/Subscribe to " + String(locoAddr));
-      write(&cmd, sizeof(cmd));
+      wireless->write(&cmd, sizeof(cmd));
     }
 
     void send(char cmd, float value) {
-      if (isQueueFull) {
-        Serial.println("Queue is full");
-      } else {
-        queue.type = PACKET_THR_NORM;
-        queue.cmd = cmd;
-        queue.value = value;
-        isQueueFull = true;
-        queueRetries = MAX_RETRY;
-        Serial.println("Enqueue " + String(cmd) + " " + String(value));
-      }
-    }
-
-    void doSend() {
-      if (isQueueFull) {
-        if (write(&queue, sizeof(queue))) {
-          isQueueFull = false;
-          Serial.println("Sent " + String(queue.cmd) + " " + String(queue.value));
-          sent++;
-        } else {
-          if (--queueRetries <= 0) {
-            Serial.println("Queue timed out");
-            isQueueFull = false;
-            lost++;
-          }
-        }
-      }
+      command.cmd = cmd;
+      command.value = value;
+      sent++;
     }
 
     void sendFunction(char function, int value) {
@@ -117,6 +89,8 @@ class ThrComms {
 
     void setup() {
       wireless->setup();
+      command.type = PACKET_THR_NORM;
+      timer.restart();
     }
 
     bool loop() {
@@ -142,7 +116,10 @@ class ThrComms {
             }
           }
         }
-        doSend();
+        if (timer.hasFired()) {
+          if (!wireless->write(&command, sizeof(command)))
+            lost++;
+        }
         return update;
     }
 };
