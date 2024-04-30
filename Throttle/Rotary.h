@@ -12,12 +12,11 @@ class Rotary {
     void setup() {
       pinMode(IN_PIN, INPUT);
       pinMode(VCC_PIN, OUTPUT);
+      digitalWrite(VCC_PIN, HIGH);
     }
     
     int read() {
-      digitalWrite(VCC_PIN, HIGH);
       float a = analogRead(IN_PIN);
-      digitalWrite(VCC_PIN, LOW);
       a = a / 930 * 100;
       int b = a / 7;
       b = b * 7;

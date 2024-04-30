@@ -9,12 +9,12 @@ class HomeScreen {
     struct Loco *loco;
     
     char renderDirection() {
-      if (loco->direction == -1)
+      if (loco->direction == 2)
         return 'R';
       else if (loco->direction == 1)
         return 'F';
       else
-        return '|';      
+        return '|';
     }
     void renderBattery(uint16_t battery) {
       battery = 3 * battery / 100;

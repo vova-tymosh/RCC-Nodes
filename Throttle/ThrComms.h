@@ -29,16 +29,20 @@ class ThrComms {
     static const char PACKET_THR_NORM = 'p';
     static const char PACKET_LOCO_NORM = 'n';
     static const char FUNCTION_BASE = '@';
-    static const int MAX_RETRY = 5;
+    static const int MAX_RETRY = 3;
     Wireless *wireless;
+    Command queue;
+    bool isQueueFull;
+    int queueRetries;
 
-    void write(const void* payload, uint16_t size) {
-      bool keepTrying = true;
-      for(int i = 0; i < MAX_RETRY && keepTrying; i++) {
-        keepTrying = !wireless->write(payload, size);
-      }
+    bool write(const void* payload, uint16_t size) {
+      return wireless->write(payload, size);
     }
   public:
+    int lost;
+    int sent;
+    int recv;
+
     struct Loco {
       uint8_t addr;
       char name[NAME_SIZE];
@@ -54,9 +58,32 @@ class ThrComms {
     }
 
     void send(char cmd, float value) {
-      Command command = {PACKET_THR_NORM, cmd, value};
-      Serial.println("Send " + String(cmd) + " " + String(value));
-      write(&command, sizeof(command));
+      if (isQueueFull) {
+        Serial.println("Queue is full");
+      } else {
+        queue.type = PACKET_THR_NORM;
+        queue.cmd = cmd;
+        queue.value = value;
+        isQueueFull = true;
+        queueRetries = MAX_RETRY;
+        Serial.println("Enqueue " + String(cmd) + " " + String(value));
+      }
+    }
+
+    void doSend() {
+      if (isQueueFull) {
+        if (write(&queue, sizeof(queue))) {
+          isQueueFull = false;
+          Serial.println("Sent " + String(queue.cmd) + " " + String(queue.value));
+          sent++;
+        } else {
+          if (--queueRetries <= 0) {
+            Serial.println("Queue timed out");
+            isQueueFull = false;
+            lost++;
+          }
+        }
+      }
     }
 
     void sendFunction(char function, int value) {
@@ -108,12 +135,14 @@ class ThrComms {
             case PACKET_LOCO_NORM:
               size_t size = res - 1;
               memcpy(&loco, &packet[1], size);
+              recv++;
               // Serial.println("Update "+ String(size) + "/"+String(loco.tick));
               update = true;
               break;
             }
           }
         }
+        doSend();
         return update;
     }
 };

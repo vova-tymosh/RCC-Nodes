@@ -14,13 +14,13 @@
 const byte ROWS = 4;
 const byte COLS = 3;
 const char keys[ROWS][COLS] = {
-  {'h','m','2'},
-  {'1','d','3'},
+  {'h','m','d'},
+  {'1','2','3'},
   {'4','5','6'},
   {'7','8','9'},
 };
-byte rowPins[ROWS] = {8,9,10,0};
-byte colPins[COLS] = {1,6,3};
+byte rowPins[ROWS] = {8,9,10,3};
+byte colPins[COLS] = {1,6,0};
 Keypad keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 // *** Comms
@@ -56,12 +56,15 @@ void handleHotKey(char key) {
     else
       loco.battery = 0;
     break;
-  case '4':
-  //TODO handle proper direction change
-    if (controls.direction < 1)
-      controls.direction++;
-    else
-      controls.direction = -1;
+  case 'd':
+    if (loco.speed == 0) {
+      if (controls.direction == 1)
+        controls.direction = 2;
+      else
+        controls.direction = 1;
+    } else {
+      controls.direction = 0;
+    }
     comms.send('d', (float)controls.direction);
     break;
   }
@@ -119,11 +122,17 @@ void loop() {
     if (oldThrottle != controls.throttle) {
       oldThrottle = controls.throttle;
       comms.send('t', (float)controls.throttle);
-      update = true;
     }
+    update = true;
   }
 
   if (update) {
+    controls.outbound = comms.lost * 100 / comms.sent;
+    int uptime = millis() / 1000;
+    controls.inbound = comms.recv / (10 * uptime);
+    // Serial.println("Lost: " + String(controls.inbound) + " " + String(controls.outbound));
+
+
     void *newState = state(key);
     if (newState) {
       state = (State)newState;

@@ -10,9 +10,8 @@ class MenuItem {
   protected:
     const char *name;
     const int index;
-    int state;  
   public:
-    MenuItem(const char *name, const int index): name(name), index(index), state(0) {}
+    MenuItem(const char *name, const int index): name(name), index(index) {}
     virtual void render(char *line, size_t size) = 0;
     virtual void toggle() = 0;
 };
@@ -23,13 +22,14 @@ class MenuItemToggle: public MenuItem {
 
     void render(char *line, size_t size) {
       static const char fmt1[] = "%-18s%s";
-      if (state)
+      if (loco.bitstate & (1 << index))
         snprintf(line, size, fmt1, name, "ON");
       else
         snprintf(line, size, fmt1, name, "OFF");        
     }
 
     void toggle() {
+      int state = (loco.bitstate & (1 << index));
       if (state)
         state = 0;
       else
