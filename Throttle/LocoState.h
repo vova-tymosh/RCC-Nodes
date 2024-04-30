@@ -8,8 +8,8 @@ struct __attribute__((packed)) Loco {
       uint16_t lights    : 1;
       uint16_t slow      : 1;
       uint16_t pid       : 1;
-      uint16_t reserved  : 12;
-      uint16_t direction : 1;
+      uint16_t reserved  : 11;
+      uint16_t direction : 2;
     };
   };
   uint16_t lost;
@@ -25,6 +25,8 @@ extern struct Loco loco;
 struct Controls {
   uint16_t throttle;
   int16_t direction;
+  int inbound;
+  int outbound;
 };
 extern struct Controls controls;
 
