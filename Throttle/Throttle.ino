@@ -92,17 +92,12 @@ void setupSerial() {
 
 void setup() {
   setupSerial();
-
   comms.setup();
-
-//TODO consider more to make sure Station heard us
-  comms.send('a', 0);
   rotary.setup();
-
   ui.setup();
+
   state = homeState;
   state(0);
-
   timer.start(500);
 }
 
@@ -124,14 +119,18 @@ void loop() {
       comms.send('t', (float)controls.throttle);
     }
     update = true;
+
+//debug
+    // menuItem[0]->toggle();
   }
 
   if (update) {
-    controls.outbound = comms.lost * 100 / comms.sent;
+//debug
+    controls.outbound = (float)comms.lost / comms.sent;
     int uptime = millis() / 1000;
-    controls.inbound = comms.recv / (10 * uptime);
-    // Serial.println("Lost: " + String(controls.inbound) + " " + String(controls.outbound));
-
+    controls.inbound = abs(1 - (float)comms.recv / (10 * uptime));
+    Serial.println("Lost: " + String(controls.inbound) + " " + String(controls.outbound));
+//debug
 
     void *newState = state(key);
     if (newState) {
