@@ -5,9 +5,10 @@ class Rotary {
   private:
     const int VCC_PIN = 7;
     const int IN_PIN = A1;
+    const float TO_VALTAGE = 3.3 / 3.6 * 4096;
     SimpleKalmanFilter filter;
   public:
-    Rotary(): filter(1, 1, 0.1) {};
+    Rotary(): filter(1, 1, 0.5) {};
     
     void setup() {
       pinMode(IN_PIN, INPUT);
@@ -16,12 +17,11 @@ class Rotary {
     }
     
     int read() {
-      float a = analogRead(IN_PIN);
-      a = a / 930 * 100;
-      int b = a / 2;
-      b *= 2;
-      if (b > 100)
-        b = 100;
-      return b;
+      float a = analogRead(IN_PIN) / TO_VALTAGE * 100;
+      // Serial.println("Rotary " + String(a));
+      int smoothed = round(filter.updateEstimate(a));
+      if (smoothed > 100)
+        smoothed = 100;
+      return smoothed;
     }
 };
