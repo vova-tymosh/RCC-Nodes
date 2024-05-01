@@ -64,6 +64,7 @@ class ThrComms {
     void send(char cmd, float value) {
       command.cmd = cmd;
       command.value = value;
+      Serial.println("Send "+ String(cmd) + "/" + String(value));
     }
 
     void sendFunction(char function, int value) {
