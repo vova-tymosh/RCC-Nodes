@@ -2,6 +2,7 @@
 
 #include "UI.h"
 #include "ThrComms.h"
+#include "States.h"
 
 extern UserInterface ui;
 extern ThrComms comms;
@@ -12,6 +13,7 @@ class MenuItem {
     const int index;
 
   public:
+    static const int LINES = 4;
     MenuItem(const char *name, const int index): name(name), index(index) {}
     virtual void render(char *line, size_t size) = 0;
     virtual void toggle() = 0;
@@ -43,28 +45,37 @@ auto mi1 = MenuItemToggle("Lights", 0);
 auto mi2 = MenuItemToggle("Slow", 1);
 auto mi3 = MenuItemToggle("Pid", 2);
 auto mi4 = MenuItemToggle("Dude!", 3);
-MenuItem *menuItem[] = {&mi1, &mi2, &mi3, &mi4};
+auto mi5 = MenuItemToggle("Shmak", 4);
+auto mi6 = MenuItemToggle("Boom", 5);
+MenuItem *menuItem[] = {&mi1, &mi2, &mi3, &mi4, &mi5, &mi6};
 
-class MenuScreen {
+class MenuScreen : public BaseState {
   public:
-    void draw(char key) {
-      static int base = 0;
-      if (key == 'd')
-        if (base < 3)
-          base++;
-        else
-          base = 0;
-      else if (key == 'm')
-        menuItem[base]->toggle();
+    State handle(char key) {
+      if (key == 'h')
+        return STATE_HOME;
 
+      static int selected = 0;
+      if (key == 'd')
+        if (selected < sizeof(menuItem)/sizeof(menuItem[0]) - 1)
+          selected++;
+        else
+          selected = 0;
+      else if (key == 'm')
+        menuItem[selected]->toggle();
+
+      int base = 0;
+      if (selected >= MenuItem::LINES)
+        base = selected - MenuItem::LINES + 1;
       ui.startScreen();
-      for (int i=0; i<4; i++) {
+      for (int i = base; i < base + MenuItem::LINES; i++) {
         char line[ui.width + 1];
-        ui.textColor(base == i);
+        ui.textColor(selected == i);
         menuItem[i]->render(line, sizeof(line));
         ui.display.println(line); 
       }
       ui.display.display();
+      return STATE_NONE;
     }
 };
 
