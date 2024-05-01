@@ -4,6 +4,7 @@
 #include "States.h"
 
 extern UserInterface ui;
+extern ThrComms comms;
 
 class HomeScreen : public BaseState {
   private:
@@ -26,15 +27,14 @@ class HomeScreen : public BaseState {
       if (key == 'm')
         return STATE_MENU;
 
-      //TODO the name
-      static const char fmt1[] = "Loco:1204 %d%%";
+      static const char fmt1[] = "Loco:%s %d%%";
       static const char fmt2[] = "T:%-3d R:%-3d S:%-3d D:%c";
       static const char fmt3[] = "%d%cC     %dpsi";
       static const char fmt4[] = "ODO:%d";
       char line[ui.width + 1];
 
       ui.startScreen();
-      sprintf(line, fmt1, loco.lost + controls.lost);
+      sprintf(line, fmt1, comms.availableLocos[comms.selectedLoco].name, loco.lost + controls.lost);
       ui.display.println(line);
       sprintf(line, fmt2, controls.throttle, loco.throttle, loco.speed, renderDirection());
       ui.display.println(line);

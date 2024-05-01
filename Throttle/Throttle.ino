@@ -46,7 +46,7 @@ struct Controls controls;
 void handleHotKey(char key) {
   switch (key) {
   case '1':
-    menuItem[0]->toggle();
+    menuItem[1]->toggle();
     break;
   case '2':
     if (loco.battery < 3)

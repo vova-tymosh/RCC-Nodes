@@ -9,7 +9,7 @@
 
 #define MAX_PACKET 128
 #define MAX_LOCO 5
-#define NAME_SIZE 4
+#define NAME_SIZE 5
 
 extern struct Loco loco;
 
@@ -25,7 +25,8 @@ struct __attribute__((packed)) Auth {
 
 class ThrComms {
   private:
-    static const char PACKET_THR_AUTH = 's';
+    static const char PACKET_THR_AUTH = 'q';
+    static const char PACKET_THR_SUB  = 's';
     static const char PACKET_THR_NORM = 'p';
     static const char PACKET_LOCO_NORM = 'n';
     static const char FUNCTION_BASE = '@';
@@ -33,22 +34,26 @@ class ThrComms {
     Command command;
     Timer timer;
 
+
   public:
     int lost;
     int total;
 
-    struct Loco {
+    struct AvailableLoco {
       uint8_t addr;
       char name[NAME_SIZE];
     };
-    struct Loco availableLocos[MAX_LOCO];
+    struct AvailableLoco availableLocos[MAX_LOCO];
+    int selectedLoco;
+    int maxAvailable;
 
     ThrComms(Wireless *wireless) : wireless(wireless), timer(100) {};
 
-    void authorize(byte locoAddr) {
-      struct Auth cmd = {PACKET_THR_AUTH, locoAddr};
-      Serial.println("Auth/Subscribe to " + String(locoAddr));
-      wireless->write(&cmd, sizeof(cmd));
+    void subsribe(char locoAddr) {
+      Serial.println("Subscribe to " + String((int)locoAddr));
+      command.type = PACKET_THR_SUB;
+      command.cmd = locoAddr;
+      command.value = 0;
     }
 
     int getLostRate() {
@@ -62,9 +67,10 @@ class ThrComms {
     }
 
     void send(char cmd, float value) {
+      command.type = PACKET_THR_NORM;
       command.cmd = cmd;
       command.value = value;
-      // Serial.println("Send "+ String(cmd) + "/" + String(value));
+      Serial.println("Send "+ String(cmd) + "/" + String(value));
     }
 
     void sendFunction(char function, int value) {
@@ -72,48 +78,42 @@ class ThrComms {
       send(function, (float)value);
     }
 
-    //TODO improve/test switches between locos
-    void handleAuthorizeRequest(byte *packet, uint16_t size) {
-      char message[32];
-      memcpy(message, packet, size);
-      message[size+1] = 0;
-      Serial.println("handleAuthorizeRequest " + String(message));
-      availableLocos[0].addr = 1;
-      strcpy(availableLocos[0].name, "t001");
-      /*
-      byte *end = packet + size; 
-      packet++; //skip 'r'
-      int index = 0;
-      Serial.println("handleAuthorizeRequest " + String(size));
-      while (packet < end && index < MAX_LOCO) {
-        loco = availableLocos[index++];
-        loco.addr = *packet++;
-        memcpy(loco.name, packet, NAME_SIZE);
-        packet+= NAME_SIZE;
-        S
-        erial.println("handleAuthorizeRequest, step " + String(loco.addr) + "/" + String(loco.name));
+    void handleAuthorizeRequest(char *packet, uint16_t size) {
+      packet[size] = 0;
+      int i = 0;
+      char *token = strtok(packet, " ");
+      while(token && i < MAX_LOCO) {
+        availableLocos[i].addr = atoi(token);
+        token = strtok(NULL, " ");
+        if (token) {
+          strcpy(availableLocos[i].name, token);
+          token = strtok(NULL, " ");
+        }
+        i++;
       }
-      */
+      maxAvailable = i - 1;
     }
 
     void setup() {
       wireless->setup();
-      command.type = PACKET_THR_NORM;
+      command.type = PACKET_THR_AUTH;
       timer.restart();
     }
 
     bool loop() {
         bool update = false;
         if (wireless->available()) {
-          byte packet[MAX_PACKET];
+          char packet[MAX_PACKET];
           uint16_t res = wireless->read(packet, sizeof(packet));
           if (res > 1) {
             char cmd = packet[0];
+            size_t size = res - 1;
             switch (cmd) {
             case PACKET_THR_AUTH:
               Serial.println("Request to authorize");
-              handleAuthorizeRequest(packet , res);
-              authorize(availableLocos[0].addr);
+              handleAuthorizeRequest(&packet[1], size);
+              command.type = PACKET_THR_NORM;
+              subsribe(availableLocos[selectedLoco].addr);
               break;
             case PACKET_LOCO_NORM:
               size_t size = res - 1;
