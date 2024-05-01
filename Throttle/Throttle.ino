@@ -8,6 +8,7 @@
 #include "LocoState.h"
 #include "HomeScreen.h"
 #include "MenuScreen.h"
+#include "Battery.h"
 
 
 // *** Keyboard
@@ -40,6 +41,7 @@ BaseState *state;
 Timer screensaver;
 Timer timer;
 Rotary rotary;
+Battery battery;
 struct Controls controls;
 
 
@@ -76,12 +78,13 @@ void setupSerial() {
 void setup() {
   setupSerial();
   comms.setup();
+  battery.setup();
   rotary.setup();
   ui.setup();
 
   state = &homeScreen;
   state->handle(0);
-  timer.start(500);
+  timer.start(250);
   screensaver.start(30000);
 }
 
@@ -89,6 +92,7 @@ void loop() {
   static bool powerOn = true;
   bool incoming = comms.loop();
   bool update = false;
+
 
   char key = keypad.getKey();
   if (key) {
@@ -103,8 +107,8 @@ void loop() {
     if (oldThrottle != controls.throttle) {
       oldThrottle = controls.throttle;
       comms.send('t', (float)controls.throttle);
-      update = true;
     }
+    update = true;
   }
 
   if (update) {
