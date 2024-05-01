@@ -35,11 +35,12 @@ typedef void* (*State)(char key);
 State state;
 void* homeState(char key);
 void* menuState(char key);
-HomeScreen homeScreen(&loco);
+HomeScreen homeScreen;
 MenuScreen menuScreen;
 extern MenuItem *menuItem[];
 
 // *** The rest
+Timer screensaver;
 Timer timer;
 Rotary rotary;
 struct Controls controls;
@@ -99,10 +100,13 @@ void setup() {
   state = homeState;
   state(0);
   timer.start(500);
+  screensaver.start(30000);
 }
 
 void loop() {
-  bool update = comms.loop();
+  static bool powerOn = true;
+  bool incoming = comms.loop();
+  bool update = false;
 
   char key = keypad.getKey();
   if (key) {
@@ -117,20 +121,21 @@ void loop() {
     if (oldThrottle != controls.throttle) {
       oldThrottle = controls.throttle;
       comms.send('t', (float)controls.throttle);
+      update = true;
     }
-    update = true;
-
-//debug
-    // menuItem[0]->toggle();
   }
 
   if (update) {
-//debug
-    controls.outbound = (float)comms.lost / comms.sent;
-    int uptime = millis() / 1000;
-    controls.inbound = abs(1 - (float)comms.recv / (10 * uptime));
-    Serial.println("Lost: " + String(controls.inbound) + " " + String(controls.outbound));
-//debug
+    powerOn = true;
+    ui.powerOn();
+    screensaver.restart();
+  } else if (screensaver.hasFiredOnce()) {
+    powerOn = false;
+    ui.powerOff();
+  }
+
+  if (powerOn && (update || incoming)) {
+    controls.lost = comms.getLostRate();
 
     void *newState = state(key);
     if (newState) {

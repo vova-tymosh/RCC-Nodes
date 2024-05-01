@@ -10,6 +10,7 @@ class MenuItem {
   protected:
     const char *name;
     const int index;
+
   public:
     MenuItem(const char *name, const int index): name(name), index(index) {}
     virtual void render(char *line, size_t size) = 0;

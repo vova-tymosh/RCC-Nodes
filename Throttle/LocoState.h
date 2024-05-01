@@ -24,9 +24,8 @@ extern struct Loco loco;
 
 struct Controls {
   uint16_t throttle;
-  int16_t direction;
-  float inbound;
-  float outbound;
+  uint16_t direction;
+  uint16_t lost;
 };
 extern struct Controls controls;
 
