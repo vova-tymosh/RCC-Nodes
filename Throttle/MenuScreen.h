@@ -41,13 +41,31 @@ class MenuItemToggle: public MenuItem {
     }
 };
 
+class MenuItemLoco: public MenuItem {
+  public:
+    MenuItemLoco(): MenuItem(NULL, 0) {}
+
+    void render(char *line, size_t size) {
+      static const char fmt1[] = "Loco             %-4s";
+      char *name = comms.availableLocos[comms.selectedLoco].name;
+      snprintf(line, size, fmt1, name);
+    }
+
+    void toggle() {
+      if (comms.selectedLoco < comms.maxAvailable)
+        comms.selectedLoco++;
+      else
+        comms.selectedLoco = 0;
+      comms.subsribe(comms.availableLocos[comms.selectedLoco].addr);
+    }
+};
+
+auto mi0 = MenuItemLoco();
 auto mi1 = MenuItemToggle("Lights", 0);
 auto mi2 = MenuItemToggle("Slow", 1);
 auto mi3 = MenuItemToggle("Pid", 2);
-auto mi4 = MenuItemToggle("Dude!", 3);
-auto mi5 = MenuItemToggle("Shmak", 4);
-auto mi6 = MenuItemToggle("Boom", 5);
-MenuItem *menuItem[] = {&mi1, &mi2, &mi3, &mi4, &mi5, &mi6};
+auto mi4 = MenuItemToggle("Shmak", 3);
+MenuItem *menuItem[] = {&mi0, &mi1, &mi2, &mi3, &mi4};
 
 class MenuScreen : public BaseState {
   public:
@@ -78,15 +96,3 @@ class MenuScreen : public BaseState {
       return STATE_NONE;
     }
 };
-
-/*
-byte menuStatus[4];
-const char *locoNames[3] = {"1204", " 948", " 002"};
-
-void renderLoco(char* line, int index) {
-  memset(line, ' ', WIDTH);
-  memcpy(line, menuItem[index].name, strlen(menuItem[index].name));
-  memcpy(line + WIDTH - 4, locoNames[menuStatus[index]], 4);
-  line[WIDTH] = 0;
-}
-*/
