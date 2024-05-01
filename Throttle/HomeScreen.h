@@ -44,8 +44,8 @@ class HomeScreen : public BaseState {
 
       static const char fmt1[] = "Loco:%s %d%%";
       static const char fmt2[] = "T:%-3d R:%-3d S:%-3d D:%c";
-      static const char fmt3[] = "%d%cC     %dpsi";
-      static const char fmt4[] = "ODO:%d %d";
+      static const char fmt3[] = "%2d%cC    %2dpsi    %2d%%";
+      static const char fmt4[] = "B:%-3d   ODO:%d";
       char line[ui.width + 1];
 
       ui.startScreen();
@@ -56,11 +56,9 @@ class HomeScreen : public BaseState {
       ui.display.println(line);
       sprintf(line, fmt2, controls.throttle, loco.throttle, loco.speed, renderDirection());
       ui.display.println(line);
-      sprintf(line, fmt3, loco.temperature, 247, loco.psi);
+      sprintf(line, fmt3, loco.temperature, 247, loco.psi, loco.water);
       ui.display.println(line);
-      // sprintf(line, fmt4, loco.disatnce);
-      int v = battery.getVoltage() * 100;
-      sprintf(line, fmt4, v, battery.isCharging());
+      sprintf(line, fmt4, loco.battery, loco.disatnce);
       ui.display.println(line);
       
       renderBattery();
