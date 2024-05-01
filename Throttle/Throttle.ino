@@ -20,7 +20,7 @@ const char keys[ROWS][COLS] = {
   {'7','8','9'},
 };
 byte rowPins[ROWS] = {8,9,10,3};
-byte colPins[COLS] = {1,6,0};
+byte colPins[COLS] = {2,6,0};
 Keypad keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 // *** Comms

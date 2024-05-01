@@ -4,7 +4,7 @@
 class Rotary {
   private:
     const int VCC_PIN = 7;
-    const int IN_PIN = A2;
+    const int IN_PIN = A1;
     SimpleKalmanFilter filter;
   public:
     Rotary(): filter(1, 1, 0.1) {};
@@ -18,9 +18,10 @@ class Rotary {
     int read() {
       float a = analogRead(IN_PIN);
       a = a / 930 * 100;
-      int b = a / 7;
-      b = b * 7;
-      //TODO fix the noise
-      return b;//filter.updateEstimate(b);
+      int b = a / 2;
+      b *= 2;
+      if (b > 100)
+        b = 100;
+      return b;
     }
 };
