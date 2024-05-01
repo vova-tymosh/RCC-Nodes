@@ -35,8 +35,7 @@ class ThrComms {
 
   public:
     int lost;
-    int sent;
-    int recv;
+    int total;
 
     struct Loco {
       uint8_t addr;
@@ -52,10 +51,19 @@ class ThrComms {
       wireless->write(&cmd, sizeof(cmd));
     }
 
+    int getLostRate() {
+      int lostRate = 0;
+      if (total) {
+        lostRate = 100 * lost / total;
+        if (lostRate > 100)
+          lostRate = 100;
+      }
+      return lostRate;
+    }
+
     void send(char cmd, float value) {
       command.cmd = cmd;
       command.value = value;
-      sent++;
     }
 
     void sendFunction(char function, int value) {
@@ -109,7 +117,6 @@ class ThrComms {
             case PACKET_LOCO_NORM:
               size_t size = res - 1;
               memcpy(&loco, &packet[1], size);
-              recv++;
               // Serial.println("Update "+ String(size) + "/"+String(loco.tick));
               update = true;
               break;
@@ -117,6 +124,7 @@ class ThrComms {
           }
         }
         if (timer.hasFired()) {
+          total++;
           if (!wireless->write(&command, sizeof(command)))
             lost++;
         }

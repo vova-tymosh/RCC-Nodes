@@ -61,6 +61,7 @@ class UserInterface {
     static const int OLED_RESET     = -1;
     static const int SCREEN_ADDRESS = 0x3C;
     const unsigned char *batteryIcons[4] = {batteryEmpty, batteryOne, batteryTwo, batteryFull};
+    bool on;
 
   public:
     static const int width = 21;
@@ -74,16 +75,18 @@ class UserInterface {
     };
     
     UserInterface(): display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET) {};
-    //TODO - power save mode
-/*
+
     void powerOn() {
-      display.ssd1306_command(SSD1306_DISPLAYON);
+      if (!on)
+        display.ssd1306_command(SSD1306_DISPLAYON);
+      on = true;
     }
     
     void powerOff() {
+      on = false;
       display.ssd1306_command(SSD1306_DISPLAYOFF);
     }
-  */  
+
     void showBattery(BatteryState state) {
       display.drawBitmap(104, 0,  batteryIcons[state], 24, 8, 1);      
     }
@@ -107,5 +110,6 @@ class UserInterface {
         for(;;);
       }
       display.setTextSize(1);
+      on = true;
     }
 };

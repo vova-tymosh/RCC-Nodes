@@ -6,12 +6,10 @@ extern UserInterface ui;
 
 class HomeScreen {
   private:
-    struct Loco *loco;
-    
     char renderDirection() {
-      if (loco->direction == 2)
+      if (loco.direction == 2)
         return 'R';
-      else if (loco->direction == 1)
+      else if (loco.direction == 1)
         return 'F';
       else
         return '|';
@@ -23,8 +21,6 @@ class HomeScreen {
     }
 
   public:
-    HomeScreen(struct Loco *loco) : loco(loco) {};
-    
     void draw() {
       //TODO the name
       static const char fmt1[] = "Loco:1204 %d%%";
@@ -34,16 +30,16 @@ class HomeScreen {
       char line[ui.width + 1];
 
       ui.startScreen();
-      sprintf(line, fmt1, loco->lost);
+      sprintf(line, fmt1, loco.lost + controls.lost);
       ui.display.println(line);
-      sprintf(line, fmt2, loco->throttle, loco->speed, renderDirection());
+      sprintf(line, fmt2, loco.throttle, loco.speed, renderDirection());
       ui.display.println(line);
-      sprintf(line, fmt3, loco->temperature, 247, loco->psi);
+      sprintf(line, fmt3, loco.temperature, 247, loco.psi);
       ui.display.println(line);
-      sprintf(line, fmt4, loco->disatnce);
+      sprintf(line, fmt4, loco.disatnce);
       ui.display.println(line);
       
-      renderBattery(loco->battery);
+      renderBattery(loco.battery);
       ui.display.display();
     }
 };
