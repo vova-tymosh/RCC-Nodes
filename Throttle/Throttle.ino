@@ -24,20 +24,17 @@ byte colPins[COLS] = {1,6,0};
 Keypad keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 // *** Comms
-const int   locoAddr = 4;
+const int locoAddr = 4;
 Wireless wireless(locoAddr);
 ThrComms comms(&wireless);
 struct Loco loco;
 
 // *** Screens and UI
 UserInterface ui;
-typedef void* (*State)(char key);
-State state;
-void* homeState(char key);
-void* menuState(char key);
 HomeScreen homeScreen;
 MenuScreen menuScreen;
-extern MenuItem *menuItem[];
+BaseState *states[] = {(BaseState*)0, &homeScreen, &menuScreen};
+BaseState *state;
 
 // *** The rest
 Timer screensaver;
@@ -71,21 +68,6 @@ void handleHotKey(char key) {
   }
 }
 
-//TODO consider class states
-void* homeState(char key) {
-  if (key == 'm')
-    return (void*)menuState;
-  homeScreen.draw();
-  return 0;
-}
-
-void* menuState(char key) {
-  if (key == 'h')
-    return (void*)homeState;
-  menuScreen.draw(key);
-  return 0;
-}
-
 void setupSerial() {
   Serial.begin(115200);
   Serial.println("Started");
@@ -97,8 +79,8 @@ void setup() {
   rotary.setup();
   ui.setup();
 
-  state = homeState;
-  state(0);
+  state = &homeScreen;
+  state->handle(0);
   timer.start(500);
   screensaver.start(30000);
 }
@@ -137,10 +119,10 @@ void loop() {
   if (powerOn && (update || incoming)) {
     controls.lost = comms.getLostRate();
 
-    void *newState = state(key);
+    State newState = state->handle(key);
     if (newState) {
-      state = (State)newState;
-      state(0);
+      state = states[newState];
+      state->handle(0);
     }
   }
 }

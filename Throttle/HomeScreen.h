@@ -1,10 +1,11 @@
 #pragma once
 
 #include "LocoState.h"
+#include "States.h"
 
 extern UserInterface ui;
 
-class HomeScreen {
+class HomeScreen : public BaseState {
   private:
     char renderDirection() {
       if (loco.direction == 2)
@@ -21,7 +22,10 @@ class HomeScreen {
     }
 
   public:
-    void draw() {
+    State handle(char key) {
+      if (key == 'm')
+        return STATE_MENU;
+
       //TODO the name
       static const char fmt1[] = "Loco:1204 %d%%";
       static const char fmt2[] = "T:%-3d    S:%-3d    D:%c";
@@ -41,5 +45,6 @@ class HomeScreen {
       
       renderBattery(loco.battery);
       ui.display.display();
+      return STATE_NONE;
     }
 };
