@@ -19,6 +19,7 @@ struct __attribute__((packed)) Loco {
   uint16_t battery;
   int16_t  temperature;
   uint16_t psi;
+  uint16_t water;
 };
 extern struct Loco loco;
 
