@@ -47,16 +47,12 @@ class MenuItemLoco: public MenuItem {
 
     void render(char *line, size_t size) {
       static const char fmt1[] = "Loco             %-4s";
-      char *name = comms.availableLocos[comms.selectedLoco].name;
-      snprintf(line, size, fmt1, name);
+      snprintf(line, size, fmt1, comms.getSelectedName());
     }
 
     void toggle() {
-      if (comms.selectedLoco < comms.maxAvailable)
-        comms.selectedLoco++;
-      else
-        comms.selectedLoco = 0;
-      comms.subsribe(comms.availableLocos[comms.selectedLoco].addr);
+      comms.cycleSelected();
+      comms.subsribe();
     }
 };
 
