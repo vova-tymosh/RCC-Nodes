@@ -52,7 +52,7 @@ class HomeScreen : public BaseState {
       unsigned int lost = loco.lost + controls.lost;
       if (lost > 100)
         lost = 100;
-      sprintf(line, fmt1, comms.availableLocos[comms.selectedLoco].name, lost);
+      sprintf(line, fmt1, comms.getSelectedName(), lost);
       ui.display.println(line);
       sprintf(line, fmt2, controls.throttle, loco.throttle, loco.speed, renderDirection());
       ui.display.println(line);

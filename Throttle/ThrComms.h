@@ -34,27 +34,22 @@ class ThrComms {
     Command command;
     Timer timer;
 
-
-  public:
-    int lost;
-    int total;
-
     struct AvailableLoco {
       uint8_t addr;
       char name[NAME_SIZE];
     };
-    struct AvailableLoco availableLocos[MAX_LOCO];
-    int selectedLoco;
-    int maxAvailable;
 
+    struct RegisteredLoco {
+      struct AvailableLoco locos[MAX_LOCO];
+      int selected;
+      int max;
+    } registered;
+
+    int lost;
+    int total;
+
+  public:
     ThrComms(Wireless *wireless) : wireless(wireless), timer(100) {};
-
-    void subsribe(char locoAddr) {
-      Serial.println("Subscribe to " + String((int)locoAddr));
-      command.type = PACKET_THR_SUB;
-      command.cmd = locoAddr;
-      command.value = 0;
-    }
 
     uint16_t getLostRate() {
       uint16_t lostRate = 0;
@@ -64,6 +59,17 @@ class ThrComms {
           lostRate = 100;
       }
       return lostRate;
+    }
+
+    char *getSelectedName() {
+      return registered.locos[registered.selected].name;
+    }
+
+    void cycleSelected() {
+      if (registered.selected < registered.max)
+        registered.selected++;
+      else
+        registered.selected = 0;
     }
 
     void send(char cmd, float value) {
@@ -78,20 +84,30 @@ class ThrComms {
       send(function, (float)value);
     }
 
+    void subsribe() {
+      int addr = 1; //if no locos register try to subsribe to the 1st one
+      if (registered.max > 0)
+        addr = registered.locos[registered.selected].addr;
+      Serial.println("Subscribe to " + String(addr));
+      command.type = PACKET_THR_SUB;
+      command.cmd = addr;
+      command.value = 0;
+    }
+
     void handleAuthorizeRequest(char *packet, uint16_t size) {
       packet[size] = 0;
       int i = 0;
       char *token = strtok(packet, " ");
       while(token && i < MAX_LOCO) {
-        availableLocos[i].addr = atoi(token);
+        registered.locos[i].addr = atoi(token);
         token = strtok(NULL, " ");
         if (token) {
-          strcpy(availableLocos[i].name, token);
+          strcpy(registered.locos[i].name, token);
           token = strtok(NULL, " ");
         }
         i++;
       }
-      maxAvailable = i - 1;
+      registered.max = i - 1;
     }
 
     void setup() {
@@ -113,7 +129,7 @@ class ThrComms {
               Serial.println("Request to authorize");
               handleAuthorizeRequest(&packet[1], size);
               command.type = PACKET_THR_NORM;
-              subsribe(availableLocos[selectedLoco].addr);
+              subsribe();
               break;
             case PACKET_LOCO_NORM:
               size_t size = res - 1;
