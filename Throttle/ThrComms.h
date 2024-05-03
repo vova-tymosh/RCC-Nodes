@@ -26,6 +26,7 @@ struct __attribute__((packed)) Auth {
 
 class ThrComms {
   private:
+    static const char PACKET_LOCO_AUTH = 'r';
     static const char PACKET_THR_AUTH = 'q';
     static const char PACKET_THR_SUB  = 's';
     static const char PACKET_THR_NORM = 'p';
@@ -67,6 +68,10 @@ class ThrComms {
       return registered.locos[registered.selected].name;
     }
 
+    int getSelectedAddr() {
+      return registered.locos[registered.selected].addr;
+    }
+
     void cycleSelected() {
       if (registered.selected < registered.max)
         registered.selected++;
@@ -90,13 +95,14 @@ class ThrComms {
       int addr = 1; //if no locos register try to subsribe to the 1st one
       if (registered.max > 0)
         addr = registered.locos[registered.selected].addr;
-      Serial.println("Subscribe to " + String(addr));
       command.type = PACKET_THR_SUB;
       command.cmd = addr;
       command.value = 0;
+      Serial.println("Subscribe to " + String(addr));
     }
 
     void handleAuthorizeRequest(char *packet, uint16_t size) {
+      Serial.println("Request to authorize");
       packet[size] = 0;
       int i = 0;
       char *token = strtok(packet, " ");
@@ -112,7 +118,45 @@ class ThrComms {
       registered.max = i - 1;
     }
 
+    void askToAuthorize(int from) {
+      command.type = PACKET_LOCO_AUTH;
+      command.cmd = 0;
+      command.value = 0;
+      Serial.println("Local mode. Ask to auth");
+    }
+
+    bool isLocalMode() {
+      return (node == 0);
+    }
+
+    bool isRegistered(int addr) {
+      for (int i = 0; i < registered.max; i++) {
+        if (addr == registered.locos[i].addr)
+          return true;
+      }
+      return false;
+    }
+
+    bool handleNormal(char *payload, uint16_t size, int from) {
+      bool mine = false;
+      if (isLocalMode()) {
+        if (from == getSelectedAddr())
+          mine = true;
+        else
+          if (!isRegistered(from))
+            askToAuthorize(from);
+      } else {
+        mine = true;
+      }
+      if (mine) {
+        memcpy(&loco, payload, size);
+        // Serial.println("Update "+ String(size) + "/"+String(loco.tick));
+      }
+      return mine;
+    }
+
     void setup(int node) {
+      this->node = node;
       wireless->setup(node);
       command.type = PACKET_THR_AUTH;
       timer.restart();
@@ -123,30 +167,27 @@ class ThrComms {
         if (wireless->available()) {
           char packet[MAX_PACKET];
           int from;
-          uint16_t res = wireless->readFrom(&from, packet, sizeof(packet));
+          uint16_t res = wireless->read(packet, sizeof(packet), &from);
           if (res > 1) {
             char cmd = packet[0];
             char *payload = packet + 1;
             size_t size = res - 1;
             switch (cmd) {
             case PACKET_THR_AUTH:
-              Serial.println("Request to authorize");
-              handleAuthorizeRequest(payload, size);
-              subsribe();
+              if (!isLocalMode()) {
+                handleAuthorizeRequest(payload, size);
+                subsribe();
+              }
               break;
             case PACKET_LOCO_NORM:
-              if (from == 0) {//TODO
-                memcpy(&loco, payload, size);
-                // Serial.println("Update "+ String(size) + "/"+String(loco.tick));
-                update = true;
-              }
+              update = handleNormal(payload, size, from);
               break;
             }
           }
         }
         if (timer.hasFired()) {
           total++;
-          if (!wireless->write(&command, sizeof(command)))
+          if (!wireless->write(&command, sizeof(command), node))
             lost++;
         }
         return update;
