@@ -25,8 +25,8 @@ byte colPins[COLS] = {2,6,0};
 Keypad keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 // *** Comms
-const int locoAddr = 4;
-Wireless wireless(locoAddr);
+const int node = 4;
+Wireless wireless;
 ThrComms comms(&wireless);
 struct Loco loco;
 
@@ -43,6 +43,7 @@ Timer timer;
 Rotary rotary;
 Battery battery;
 struct Controls controls;
+
 
 
 void handleHotKey(char key) {
@@ -77,7 +78,11 @@ void setupSerial() {
 
 void setup() {
   setupSerial();
-  comms.setup();
+
+  // if (/////)
+  //   comms.setup(0);
+  // else
+    comms.setup(node);
   battery.setup();
   rotary.setup();
   ui.setup();
