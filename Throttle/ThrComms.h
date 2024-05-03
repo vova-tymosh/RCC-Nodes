@@ -6,12 +6,13 @@
 #pragma once
 #include "Timer.h"
 #include "Wireless.h"
+#include "LocoState.h"
+
 
 #define MAX_PACKET 128
 #define MAX_LOCO 5
 #define NAME_SIZE 5
 
-extern struct Loco loco;
 
 struct __attribute__((packed)) Command {
   uint8_t type;
@@ -33,6 +34,7 @@ class ThrComms {
     Wireless *wireless;
     Command command;
     Timer timer;
+    int node;
 
     struct AvailableLoco {
       uint8_t addr;
@@ -110,8 +112,8 @@ class ThrComms {
       registered.max = i - 1;
     }
 
-    void setup() {
-      wireless->setup();
+    void setup(int node) {
+      wireless->setup(node);
       command.type = PACKET_THR_AUTH;
       timer.restart();
     }
@@ -120,22 +122,24 @@ class ThrComms {
         bool update = false;
         if (wireless->available()) {
           char packet[MAX_PACKET];
-          uint16_t res = wireless->read(packet, sizeof(packet));
+          int from;
+          uint16_t res = wireless->readFrom(&from, packet, sizeof(packet));
           if (res > 1) {
             char cmd = packet[0];
+            char *payload = packet + 1;
             size_t size = res - 1;
             switch (cmd) {
             case PACKET_THR_AUTH:
               Serial.println("Request to authorize");
-              handleAuthorizeRequest(&packet[1], size);
-              command.type = PACKET_THR_NORM;
+              handleAuthorizeRequest(payload, size);
               subsribe();
               break;
             case PACKET_LOCO_NORM:
-              size_t size = res - 1;
-              memcpy(&loco, &packet[1], size);
-              // Serial.println("Update "+ String(size) + "/"+String(loco.tick));
-              update = true;
+              if (from == 0) {//TODO
+                memcpy(&loco, payload, size);
+                // Serial.println("Update "+ String(size) + "/"+String(loco.tick));
+                update = true;
+              }
               break;
             }
           }

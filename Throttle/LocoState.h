@@ -29,4 +29,3 @@ struct Controls {
   uint16_t lost;
 };
 extern struct Controls controls;
-
