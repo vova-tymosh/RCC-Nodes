@@ -3,6 +3,7 @@
 #include "UI.h"
 #include "ThrComms.h"
 #include "States.h"
+#include "Storage.h"
 
 extern UserInterface ui;
 extern ThrComms comms;
@@ -15,6 +16,7 @@ class MenuItem {
   public:
     static const int LINES = 4;
     MenuItem(const char *name, const int index): name(name), index(index) {}
+    virtual void setup() {};
     virtual void render(char *line, size_t size) = 0;
     virtual void toggle() = 0;
 };
@@ -41,6 +43,32 @@ class MenuItemToggle: public MenuItem {
     }
 };
 
+class MenuItemToggleLocal: public MenuItemToggle {
+    int savedState;
+  public:
+    MenuItemToggleLocal(const char *name, const int index): MenuItemToggle(name, index) {}
+
+    void setup() {
+      savedState = setting.bitstate & (1 << index);
+    }
+
+    void render(char *line, size_t size) {
+      static const char fmt1[] = "%-18s%s";
+      String title = name;
+      if (savedState != (setting.bitstate & (1 << index)))
+        title += String("(bootme)");
+      if (setting.bitstate & (1 << index))
+        snprintf(line, size, fmt1, title.c_str(), "ON");
+      else
+        snprintf(line, size, fmt1, title.c_str(), "OFF");
+    }
+
+    void toggle() {
+      setting.bitstate ^= (1 << index);
+      saveFS(setting.bitstate);
+    }
+};
+
 class MenuItemLoco: public MenuItem {
   public:
     MenuItemLoco(): MenuItem(NULL, 0) {}
@@ -61,7 +89,8 @@ auto mi1 = MenuItemToggle("Lights", 0);
 auto mi2 = MenuItemToggle("Slow", 1);
 auto mi3 = MenuItemToggle("Pid", 2);
 auto mi4 = MenuItemToggle("Shmak", 3);
-MenuItem *menuItem[] = {&mi0, &mi1, &mi2, &mi3, &mi4};
+auto mi5 = MenuItemToggleLocal("Local", 0);
+MenuItem *menuItem[] = {&mi0, &mi1, &mi2, &mi3, &mi4, &mi5};
 
 class MenuScreen : public BaseState {
   public:

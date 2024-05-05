@@ -9,6 +9,7 @@
 #include "HomeScreen.h"
 #include "MenuScreen.h"
 #include "Battery.h"
+#include "Storage.h"
 
 
 // *** Keyboard
@@ -43,7 +44,7 @@ Timer timer;
 Rotary rotary;
 Battery battery;
 struct Controls controls;
-
+struct Setting setting;
 
 
 void handleHotKey(char key) {
@@ -78,14 +79,20 @@ void setupSerial() {
 
 void setup() {
   setupSerial();
+  setupFS();
 
-  // if (/////)
-  //   comms.setup(0);
-  // else
+  setting.bitstate = restoreFS();
+  Serial.println("Settings: " + String(setting.bitstate));
+
+  if (setting.local)
+    comms.setup(0);
+  else
     comms.setup(node);
   battery.setup();
   rotary.setup();
   ui.setup();
+  menuItem[5]->setup();
+
 
   state = &homeScreen;
   state->handle(0);
