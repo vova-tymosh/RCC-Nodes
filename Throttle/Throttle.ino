@@ -91,7 +91,7 @@ void setup() {
   battery.setup();
   rotary.setup();
   ui.setup();
-  menuItem[5]->setup();
+  menuScreen.setup();
 
 
   state = &homeScreen;

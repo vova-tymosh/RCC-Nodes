@@ -35,7 +35,8 @@ struct Setting {
     uint8_t bitstate;
     struct {
       uint8_t local     : 1;
-      uint8_t reserved  : 7;
+      uint8_t bigui     : 1;
+      uint8_t reserved  : 6;
     };
   };
 };
