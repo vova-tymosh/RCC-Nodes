@@ -43,29 +43,44 @@ class MenuItemToggle: public MenuItem {
     }
 };
 
-class MenuItemToggleLocal: public MenuItemToggle {
+class MenuItemToggleConfig: public MenuItemToggle {
     int savedState;
   public:
-    MenuItemToggleLocal(const char *name, const int index): MenuItemToggle(name, index) {}
+    MenuItemToggleConfig(const char *name, const int index): MenuItemToggle(name, index) {}
 
-    void setup() {
-      savedState = setting.bitstate & (1 << index);
+    virtual const char *getName(String &title) {
+      return name;
     }
 
     void render(char *line, size_t size) {
       static const char fmt1[] = "%-18s%s";
-      String title = name;
-      if (savedState != (setting.bitstate & (1 << index)))
-        title += String("(bootme)");
+      String title;
       if (setting.bitstate & (1 << index))
-        snprintf(line, size, fmt1, title.c_str(), "ON");
+        snprintf(line, size, fmt1, getName(title), "ON");
       else
-        snprintf(line, size, fmt1, title.c_str(), "OFF");
+        snprintf(line, size, fmt1, getName(title), "OFF");
     }
 
     void toggle() {
       setting.bitstate ^= (1 << index);
       saveFS(setting.bitstate);
+    }
+};
+
+class MenuItemToggleLocal: public MenuItemToggleConfig {
+    int savedState;
+  public:
+    MenuItemToggleLocal(const char *name, const int index): MenuItemToggleConfig(name, index) {}
+
+    void setup() {
+      savedState = setting.bitstate & (1 << index);
+    }
+
+    const char *getName(String &title) {
+      title += String(name);
+      if (savedState != (setting.bitstate & (1 << index)))
+        title += String("(bootme)");
+      return title.c_str();
     }
 };
 
@@ -89,11 +104,17 @@ auto mi1 = MenuItemToggle("Lights", 0);
 auto mi2 = MenuItemToggle("Slow", 1);
 auto mi3 = MenuItemToggle("Pid", 2);
 auto mi4 = MenuItemToggle("Shmak", 3);
-auto mi5 = MenuItemToggleLocal("Local", 0);
-MenuItem *menuItem[] = {&mi0, &mi1, &mi2, &mi3, &mi4, &mi5};
+auto mi5 = MenuItemToggleConfig("Big font", 1);
+auto mi6 = MenuItemToggleLocal("Local", 0);
+MenuItem *menuItem[] = {&mi0, &mi1, &mi2, &mi3, &mi4, &mi5, &mi6};
 
 class MenuScreen : public BaseState {
   public:
+    void setup() {
+      for (int i = 0; i < sizeof(menuItem)/sizeof(menuItem[0]); i++)
+        menuItem[i]->setup();
+    }
+
     State handle(char key) {
       if (key == 'h')
         return STATE_HOME;

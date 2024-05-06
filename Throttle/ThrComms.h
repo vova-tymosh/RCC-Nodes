@@ -39,6 +39,7 @@ class ThrComms {
     Wireless *wireless;
     Command command;
     Timer timer;
+    Timer alivePeriod;
     int node;
 
     struct AvailableLoco {
@@ -54,6 +55,8 @@ class ThrComms {
 
     int lost;
     int total;
+    int received;
+    bool alive;
 
   public:
     ThrComms(Wireless *wireless) : wireless(wireless), timer(100) {};
@@ -66,6 +69,9 @@ class ThrComms {
           lostRate = 100;
       }
       return lostRate;
+    }
+    bool isAlive() {
+      return alive;
     }
 
     char *getSelectedName() {
@@ -181,47 +187,54 @@ class ThrComms {
       wireless->setup(node);
       command.type = PACKET_THR_AUTH;
       timer.restart();
+      alivePeriod.start(1000);
     }
 
     bool loop() {
-        bool update = false;
-        if (wireless->available()) {
-          char packet[MAX_PACKET];
-          int from;
-          uint16_t res = wireless->read(packet, sizeof(packet), &from);
-          if (res > 1) {
-            char cmd = packet[0];
-            char *payload = packet + 1;
-            size_t size = res - 1;
-            switch (cmd) {
-            case PACKET_THR_AUTH:
-              if (!isLocalMode()) {
-                handleAuthorizeRequest(payload, size);
-                subsribe();
-              }
-              break;
-            case PACKET_LOCO_NORM:
-              update = handleNormal(payload, size, from);
-              break;
-            case PACKET_LOCO_AUTH:
-              handleLocalAuth(payload, size, from);
-              break;
+      bool update = false;
+      if (wireless->available()) {
+        char packet[MAX_PACKET];
+        int from;
+        uint16_t res = wireless->read(packet, sizeof(packet), &from);
+        if (res > 1) {
+          char cmd = packet[0];
+          char *payload = packet + 1;
+          size_t size = res - 1;
+          switch (cmd) {
+          case PACKET_THR_AUTH:
+            if (!isLocalMode()) {
+              handleAuthorizeRequest(payload, size);
+              subsribe();
             }
+            break;
+          case PACKET_LOCO_NORM:
+            update = handleNormal(payload, size, from);
+            received++;
+            break;
+          case PACKET_LOCO_AUTH:
+            handleLocalAuth(payload, size, from);
+            break;
           }
         }
-        if (timer.hasFired()) {
-          if (isLocalMode()) {
-            int to = getSelectedAddr();
-            LocalCommand cmd = {command.cmd, command.value};
-            if (!wireless->write(&cmd, sizeof(cmd), to))
-              lost++;
-          } else {
-            if (!wireless->write(&command, sizeof(command)))
-              lost++;
-          }
-          total++;
+      }
+      if (timer.hasFired()) {
+        if (isLocalMode()) {
+          int to = getSelectedAddr();
+          LocalCommand cmd = {command.cmd, command.value};
+          if (!wireless->write(&cmd, sizeof(cmd), to))
+            lost++;
+        } else {
+          if (!wireless->write(&command, sizeof(command)))
+            lost++;
         }
-        return update;
+        total++;
+      }
+      if (alivePeriod.hasFired()) {
+        static int lastPackets;
+        alive = received > lastPackets;
+        lastPackets = received;
+      }
+      return update;
     }
 };
  
