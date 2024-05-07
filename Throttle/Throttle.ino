@@ -2,7 +2,6 @@
 #include "Timer.h"
 #include "Rotary.h"
 #include "UI.h"
-#define RADIO_52
 #include "Wireless.h"
 #include "ThrComms.h"
 #include "LocoState.h"
