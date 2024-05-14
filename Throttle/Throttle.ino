@@ -18,10 +18,9 @@ const char keys[ROWS][COLS] = {
   {'h','m','d'},
   {'1','2','3'},
   {'4','5','6'},
-  {'7','8','9'},
 };
-byte rowPins[ROWS] = {8,9,10,3};
-byte colPins[COLS] = {2,6,0};
+byte rowPins[ROWS] = {8,9,10};
+byte colPins[COLS] = {2,6,7};
 Keypad keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 // *** Comms

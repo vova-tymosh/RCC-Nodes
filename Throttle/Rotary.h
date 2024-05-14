@@ -20,8 +20,9 @@ class Rotary {
       float a = analogRead(IN_PIN) / TO_VALTAGE * 100;
       // Serial.println("Rotary " + String(a));
       int smoothed = round(filter.updateEstimate(a));
-      if (smoothed > 100)
-        smoothed = 100;
+      smoothed = constrain(smoothed, 0, 100);
+      if (smoothed <= 2)
+        smoothed = 0;
       return smoothed;
     }
 };
