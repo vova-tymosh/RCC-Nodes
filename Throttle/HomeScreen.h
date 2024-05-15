@@ -81,8 +81,19 @@ class HomeScreen : public BaseState {
     HomeScreen(): cycle(500) {};
 
     State handle(char key) {
-      if (key == 'm')
+      if (key == 'm') {
         return STATE_MENU;
+      } else if (key == 'd') {
+        if (loco.speed == 0) {
+          if (controls.direction == 1)
+            controls.direction = 2;
+          else
+            controls.direction = 1;
+        } else {
+          controls.direction = 0;
+        }
+        comms.send('d', (float)controls.direction);
+      }
       if (setting.bigui)
         renderBig();
       else

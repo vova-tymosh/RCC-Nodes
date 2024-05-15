@@ -56,17 +56,6 @@ void handleHotKey(char key) {
     else
       loco.battery = 0;
     break;
-  case 'd':
-    if (loco.speed == 0) {
-      if (controls.direction == 1)
-        controls.direction = 2;
-      else
-        controls.direction = 1;
-    } else {
-      controls.direction = 0;
-    }
-    comms.send('d', (float)controls.direction);
-    break;
   }
 }
 
@@ -95,20 +84,20 @@ void setup() {
   state = &homeScreen;
   state->handle(0);
   timer.start(250);
-  screensaver.start(30000);
+  screensaver.start(60 * 1000);
 }
 
 void loop() {
   static bool powerOn = true;
-  bool incoming = comms.loop();
-  bool update = false;
+  bool update = comms.loop();
+  bool wake = false;
 
 
   char key = keypad.getKey();
   if (key) {
     Serial.println("Press " + String(key));
     handleHotKey(key);
-    update = true;
+    wake = true;
   }
 
   if (timer.hasFired()) {
@@ -121,7 +110,7 @@ void loop() {
     update = true;
   }
 
-  if (update) {
+  if (wake) {
     powerOn = true;
     ui.powerOn();
     screensaver.restart();
@@ -130,7 +119,7 @@ void loop() {
     ui.powerOff();
   }
 
-  if (powerOn && (update || incoming)) {
+  if (powerOn && (update || wake)) {
     controls.lost = comms.getLostRate();
 
     State newState = state->handle(key);
