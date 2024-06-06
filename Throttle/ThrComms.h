@@ -14,7 +14,7 @@
 #define NAME_SIZE 5
 
 
-struct __attribute__((packed)) Command {
+struct __attribute__((packed)) CommandExt {
   uint8_t type;
   uint8_t cmd;
   float value;
@@ -22,10 +22,6 @@ struct __attribute__((packed)) Command {
 struct __attribute__((packed)) Auth {
   uint8_t cmd;
   uint8_t addr;
-};
-struct __attribute__((packed)) LocalCommand {
-  uint8_t cmd;
-  float value;
 };
 
 class ThrComms {
@@ -37,7 +33,7 @@ class ThrComms {
     static const char PACKET_LOCO_NORM = 'n';
     static const char FUNCTION_BASE = '@';
     Wireless *wireless;
-    Command command;
+    CommandExt command;
     Timer timer;
     Timer alivePeriod;
     int node;
@@ -130,7 +126,7 @@ class ThrComms {
     }
 
     void askToAuthorize(int from) {
-      LocalCommand cmd = {PACKET_LOCO_AUTH, 0};
+      Command cmd = {PACKET_LOCO_AUTH, 0};
       wireless->write(&cmd, sizeof(cmd), from);
       Serial.println("Local mode. Ask to auth " + String(from));
     }
@@ -195,24 +191,23 @@ class ThrComms {
       if (wireless->available()) {
         char packet[MAX_PACKET];
         int from;
-        uint16_t res = wireless->read(packet, sizeof(packet), &from);
-        if (res > 1) {
+        uint16_t size = wireless->read(packet, sizeof(packet), &from);
+        if (size > 1) {
           char cmd = packet[0];
           char *payload = packet + 1;
-          size_t size = res - 1;
           switch (cmd) {
           case PACKET_THR_AUTH:
             if (!isLocalMode()) {
-              handleAuthorizeRequest(payload, size);
+              handleAuthorizeRequest(payload, size - 1);
               subsribe();
             }
             break;
           case PACKET_LOCO_NORM:
-            update = handleNormal(payload, size, from);
+            update = handleNormal(packet, size, from);
             received++;
             break;
           case PACKET_LOCO_AUTH:
-            handleLocalAuth(payload, size, from);
+            handleLocalAuth(payload, size - 1, from);
             break;
           }
         }
@@ -220,7 +215,7 @@ class ThrComms {
       if (timer.hasFired()) {
         if (isLocalMode()) {
           int to = getSelectedAddr();
-          LocalCommand cmd = {command.cmd, command.value};
+          Command cmd = {command.cmd, command.value};
           if (!wireless->write(&cmd, sizeof(cmd), to))
             lost++;
         } else {
