@@ -27,7 +27,7 @@ Keypad keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 const int node = 4;
 Wireless wireless;
 ThrComms comms(&wireless);
-struct Loco loco;
+struct LocoState loco;
 
 // *** Screens and UI
 UserInterface ui;
@@ -38,7 +38,8 @@ BaseState *state;
 
 // *** The rest
 Timer screensaver;
-Timer timer;
+Timer rotaryTimer;
+Timer vsync;
 Rotary rotary;
 Battery battery;
 struct Controls controls;
@@ -83,7 +84,8 @@ void setup() {
 
   state = &homeScreen;
   state->handle(0);
-  timer.start(250);
+  rotaryTimer.start(100);
+  vsync.start(250);
   screensaver.start(60 * 1000);
 }
 
@@ -100,14 +102,18 @@ void loop() {
     wake = true;
   }
 
-  if (timer.hasFired()) {
+  if (rotaryTimer.hasFired()) {
     static int oldThrottle = 0;
     controls.throttle = rotary.read();
     if (oldThrottle != controls.throttle) {
       oldThrottle = controls.throttle;
       comms.send('t', (float)controls.throttle);
+      update = true;
     }
-    update = true;
+  }
+
+  if (vsync.hasFired()) {
+      update = true;
   }
 
   if (wake) {

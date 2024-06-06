@@ -8,7 +8,7 @@ class Rotary {
     const float TO_VALTAGE = 3.3 / 3.6 * 4096;
     SimpleKalmanFilter filter;
   public:
-    Rotary(): filter(1, 1, 0.5) {};
+    Rotary(): filter(1, 1, 0.2) {};
     
     void setup() {
       pinMode(IN_PIN, INPUT);
