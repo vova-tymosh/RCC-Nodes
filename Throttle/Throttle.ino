@@ -42,6 +42,7 @@ Timer rotaryTimer;
 Timer vsync;
 Rotary rotary;
 Battery battery;
+Storage storage;
 struct Controls controls;
 struct Setting setting;
 
@@ -67,9 +68,9 @@ void setupSerial() {
 
 void setup() {
   setupSerial();
-  setupFS();
+  storage.setup();
 
-  setting.bitstate = restoreFS();
+  setting.bitstate = storage.restore();
   Serial.println("Settings: " + String(setting.bitstate));
 
   if (setting.local)

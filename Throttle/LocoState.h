@@ -12,11 +12,11 @@ extern struct Controls controls;
 
 struct Setting {
   union {
-    uint8_t bitstate;
+    uint16_t bitstate;
     struct {
-      uint8_t local     : 1;
-      uint8_t bigui     : 1;
-      uint8_t reserved  : 6;
+      uint16_t local     : 1;
+      uint16_t bigui     : 1;
+      uint16_t reserved  : 14;
     };
   };
 };
