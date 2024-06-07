@@ -63,7 +63,7 @@ class MenuItemToggleConfig: public MenuItemToggle {
 
     void toggle() {
       setting.bitstate ^= (1 << index);
-      saveFS(setting.bitstate);
+      storage.save(setting.bitstate);
     }
 };
 
