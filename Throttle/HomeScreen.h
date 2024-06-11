@@ -13,12 +13,16 @@ class HomeScreen : public BaseState {
   private:
     Timer cycle;
     char renderDirection() {
+      static bool animation;
       if (loco.direction == 2)
         return 'R';
       else if (loco.direction == 1)
         return 'F';
-      else
-        return 0xEF;
+      else {
+        if (cycle.hasFired())
+          animation = !animation;
+        return animation ? 0xEF : ' ';
+      }
     }
     void renderBattery() {
       static int animation;
@@ -35,11 +39,30 @@ class HomeScreen : public BaseState {
       ui.showBattery((UserInterface::BatteryState)level);
     }
 
+    void renderDisatnce(char *line, int distance) {
+      if (distance < 1000) {
+        sprintf(line, "%-3d          ", distance);
+      } else if (distance < 10000) {
+        sprintf(line, "%.2fk         ", (float)distance/1000);
+      } else {
+        sprintf(line, "%.1fk         ", (float)distance/1000);
+      }
+    }
+
+    void renderTime(char *line) {
+      unsigned long now = millis();
+      now = now - controls.timerBase;
+      unsigned long sec = now / 1000;
+      unsigned long min = sec / 60;
+      sec = sec % 60;
+      sprintf(line, "%02d:%02d", min, sec);
+    }
+
     void renderSmall() {
       static const char fmt1[] = "Loco:%4s   %3d%%";
       static const char fmt2[] = "T:%-3d R:%-3d S:%-3d D:%c";
       static const char fmt3[] = "%2d%cC    %2dpsi    %2d%%";
-      static const char fmt4[] = "B:%-3d   ODO:%d";
+      static const char fmt4[] = "ODO:                     ";
       char line[ui.width + 1];
 
       ui.startScreen();
@@ -52,7 +75,9 @@ class HomeScreen : public BaseState {
       ui.display.println(line);
       sprintf(line, fmt3, loco.temperature, 0xF7, loco.psi, loco.water);
       ui.display.println(line);
-      sprintf(line, fmt4, loco.battery, loco.disatnce);
+      sprintf(line, fmt4);
+      renderDisatnce(line+4, loco.disatnce);
+      renderTime(line+16);
       ui.display.println(line);
       
       renderBattery();
@@ -60,8 +85,8 @@ class HomeScreen : public BaseState {
     }
 
     void renderBig() {
-      static const char fmt1[] = "%-3d %c  %c";
-      static const char fmt2[] = "%2d%c %2dp";
+      static const char fmt1[] = "T:%-3d %c%c";
+      static const char fmt2[] = "%2d%c %.1fk";
       char line[ui.width + 1];
 
       ui.startScreen();
@@ -69,7 +94,7 @@ class HomeScreen : public BaseState {
       char alive = comms.isAlive() ? 0x1F : ' ';
       sprintf(line, fmt1, controls.throttle, renderDirection(), alive);
       ui.display.println(line);
-      sprintf(line, fmt2, loco.temperature, 0xF7, loco.psi);
+      sprintf(line, fmt2, loco.temperature, 0xF7, (float)loco.disatnce/1000);
       ui.display.println(line);
 
       renderBattery();

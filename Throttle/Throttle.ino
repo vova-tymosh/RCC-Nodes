@@ -52,11 +52,8 @@ void handleHotKey(char key) {
   case '1':
     menuItem[1]->toggle();
     break;
-  case '2':
-    if (loco.battery < 3)
-      loco.battery++;
-    else
-      loco.battery = 0;
+  case '3':
+    controls.timerBase = millis();
     break;
   }
 }
@@ -87,7 +84,7 @@ void setup() {
   state->handle(0);
   rotaryTimer.start(100);
   vsync.start(250);
-  screensaver.start(60 * 1000);
+  screensaver.start(3 * 60 * 1000);
 }
 
 void loop() {
