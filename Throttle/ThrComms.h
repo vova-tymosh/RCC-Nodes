@@ -148,6 +148,10 @@ class ThrComms {
       Serial.println("Reg " + String(payload));
       int i = registered.len;
       char *token = strtok(payload, " ");
+      if (token)
+        token = strtok(NULL, " "); //skip version
+      if (token)
+        token = strtok(NULL, " "); //skip format
       if (token) {
         registered.locos[i].addr = atoi(token);
         token = strtok(NULL, " ");
@@ -157,7 +161,7 @@ class ThrComms {
           registered.len = ++i;
         }
       }
-      Serial.println("Reg end " + String(registered.len));
+      Serial.println("Reg end " + String(registered.len) + " " + String(registered.locos[0].addr));
     }
 
     bool handleNormal(char *payload, uint16_t size, int from) {
