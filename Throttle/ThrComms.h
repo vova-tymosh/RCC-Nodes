@@ -177,12 +177,13 @@ class ThrComms {
       }
       if (mine) {
         memcpy(&loco, payload, size);
-        Serial.println("Update "+ String(size) + "/" + String(loco.tick));
+        // Serial.println("Update "+ String(size) + "/" + String(loco.tick));
       }
       return mine;
     }
 
     void setup(int node) {
+      memset(&registered, 0, sizeof(registered));
       this->node = node;
       wireless->setup(node);
       command.type = PACKET_THR_AUTH;
