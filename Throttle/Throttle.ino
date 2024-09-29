@@ -89,15 +89,20 @@ void setup() {
 
 void loop() {
   static bool powerOn = true;
-  bool update = comms.loop();
+  bool update = false;
   bool wake = false;
 
+  if (comms.loop()) {
+    update = true;
+    controls.direction = loco.direction;
+  }
 
   char key = keypad.getKey();
   if (key) {
     Serial.println("Press " + String(key));
     handleHotKey(key);
     wake = true;
+    update = true;
   }
 
   if (rotaryTimer.hasFired()) {
@@ -118,12 +123,13 @@ void loop() {
     powerOn = true;
     ui.powerOn();
     screensaver.restart();
+    update = true;
   } else if (screensaver.hasFiredOnce()) {
     powerOn = false;
     ui.powerOff();
   }
 
-  if (powerOn && (update || wake)) {
+  if (powerOn && update) {
     controls.lost = comms.getLostRate();
 
     State newState = state->handle(key);

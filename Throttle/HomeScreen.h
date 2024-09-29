@@ -11,7 +11,8 @@ extern ThrComms comms;
 
 class HomeScreen : public BaseState {
   private:
-    Timer cycle;
+    Timer directionCycle, batteryCycle;
+
     char renderDirection() {
       static bool animation;
       if (loco.direction == 2)
@@ -19,16 +20,17 @@ class HomeScreen : public BaseState {
       else if (loco.direction == 1)
         return 'F';
       else {
-        if (cycle.hasFired())
+        if (directionCycle.hasFired())
           animation = !animation;
         return animation ? 0xEF : ' ';
       }
     }
+
     void renderBattery() {
       static int animation;
       int level = battery.getLevel();
       if (battery.isCharging()) {
-        if (cycle.hasFired()) {
+        if (batteryCycle.hasFired()) {
           if (animation >= UserInterface::BATTERY_FULL)
             animation = 0;
           else
@@ -76,7 +78,7 @@ class HomeScreen : public BaseState {
       sprintf(line, fmt3, loco.temperature, 0xF7, loco.psi, loco.water);
       ui.display.println(line);
       sprintf(line, fmt4);
-      renderDisatnce(line+4, loco.disatnce);
+      renderDisatnce(line+4, loco.distance);
       renderTime(line+16);
       ui.display.println(line);
       
@@ -94,7 +96,7 @@ class HomeScreen : public BaseState {
       char alive = comms.isAlive() ? 0x1F : ' ';
       sprintf(line, fmt1, controls.throttle, renderDirection(), alive);
       ui.display.println(line);
-      sprintf(line, fmt2, loco.temperature, 0xF7, (float)loco.disatnce/1000);
+      sprintf(line, fmt2, loco.temperature, 0xF7, (float)loco.distance/1000);
       ui.display.println(line);
 
       renderBattery();
@@ -103,7 +105,7 @@ class HomeScreen : public BaseState {
     }
 
   public:
-    HomeScreen(): cycle(500) {};
+    HomeScreen(): directionCycle(500), batteryCycle(500) {};
 
     State handle(char key) {
       if (key == 'm') {
