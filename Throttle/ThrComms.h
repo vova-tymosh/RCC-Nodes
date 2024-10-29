@@ -177,7 +177,7 @@ class ThrComms {
       }
       if (mine) {
         memcpy(&loco, payload, size);
-        // Serial.println("Update "+ String(size) + "/" + String(loco.tick));
+        Serial.println("Update "+ String(size) + "/" + String(loco.tick));
       }
       return mine;
     }
