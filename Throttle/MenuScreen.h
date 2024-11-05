@@ -101,9 +101,9 @@ class MenuItemLoco: public MenuItem {
 
 auto mi0 = MenuItemLoco();
 auto mi1 = MenuItemToggle("Lights", 0);
-auto mi2 = MenuItemToggle("Slow", 1);
-auto mi3 = MenuItemToggle("Pid", 2);
-auto mi4 = MenuItemToggle("Shmak", 3);
+auto mi2 = MenuItemToggle("Bell", 1);
+auto mi3 = MenuItemToggle("Slow", 28);
+auto mi4 = MenuItemToggle("Pid", 29);
 auto mi5 = MenuItemToggleConfig("Big font", 1);
 auto mi6 = MenuItemToggleLocal("Local", 0);
 MenuItem *menuItem[] = {&mi0, &mi1, &mi2, &mi3, &mi4, &mi5, &mi6};

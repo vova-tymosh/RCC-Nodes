@@ -31,7 +31,6 @@ class ThrComms {
     static const char PACKET_THR_SUB  = 's';
     static const char PACKET_THR_NORM = 'p';
     static const char PACKET_LOCO_NORM = 'n';
-    static const char FUNCTION_BASE = '@';
     Wireless *wireless;
     CommandExt command;
     Timer timer;

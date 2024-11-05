@@ -46,6 +46,9 @@ Storage storage;
 struct Controls controls;
 struct Setting setting;
 
+void toggleFunction(int index) {
+    comms.sendFunction(index, ((loco.bitstate & (1 << index)) ? 0 : 1));
+}
 
 void handleHotKey(char key) {
   switch (key) {
@@ -54,6 +57,15 @@ void handleHotKey(char key) {
     break;
   case '3':
     controls.timerBase = millis();
+    break;
+  case '4':
+    toggleFunction(1);
+    break;
+  case '5':
+    toggleFunction(3);
+    break;
+  case '6':
+    toggleFunction(23);
     break;
   }
 }
