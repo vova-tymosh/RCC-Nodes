@@ -4,6 +4,7 @@
 #include "RCCLoco.h"
 #include "Intercom.h"
 
+#include "DCC_Controller.h"
 
 
 /*
@@ -41,45 +42,90 @@ struct {
 } controls;
 
 class Tender948: public RCCLoco {
+  uint8_t _direction;
+  uint8_t _throttle;
   public:
     using RCCLoco::RCCLoco;
 
     void onFunction(char code, bool value) {
-      controls.lights = state.lights;
+      char line[10];
+      if (value) value = 1;
+      sprintf(line, "F3%02d%1d", code, value);
+      bool result = DCC.processCommand(line);
+      Serial.print(line);
+      Serial.println(result? " ok" : " error");
     }
 
     void onThrottle(uint8_t direction, uint8_t throttle) {
-      controls.direction = direction;
-      controls.throttle = throttle;
-    }
-
-    void onCommand(char code, float value) {
-      if (code == 'f') {
-        Serial.println("PID:" + String(pid.p) + " " + String(pid.i)
-                        + " " + String(pid.d) + " " + String(pid.upper));
-
+      if ((_direction != direction) || (_throttle != throttle)) {
+        uint8_t t = map(throttle, 0, 100, 0, 128);
+        char line[10];
+        if (direction == 2)
+          sprintf(line, "S30%03d", throttle);
+        else
+          sprintf(line, "S31%03d", throttle);
+        bool result = DCC.processCommand(line);
+        Serial.print(line);
+        Serial.println(result? " ok" : " error");
+      _throttle = throttle;
+        _direction = direction;
       }
     }
+
+    // void onCommand(char code, float value) {
+    //   if (code == 'f') {
+    //     Serial.println("PID:" + String(pid.p) + " " + String(pid.i)
+    //                     + " " + String(pid.d) + " " + String(pid.upper));
+    //   }
+    // }
 };
 Tender948 loco(&wireless, NODE, NAME, &storage);
+
+
+#define INPUT_LEN_MAX 10
+bool isStarted = false;
+char inString[INPUT_LEN_MAX];
+uint8_t inPos = 0;
+bool result;
+
 
 void setup() {
   Serial.begin(115200);
   speedSensor.setup();
-  intercom.setup(true);
   loco.setup();
   timer.start(100);
   watchdog.start(5000);
+
+  DCC.DCC_begin();
 }
 
 void loop() {
+  while (Serial.available()) {
+    char inChar = Serial.read();
+    if (inChar == '<'){
+      isStarted = true;
+      inPos = 0;
+    }
+    else if (inChar == '>' && isStarted){
+      inString[inPos] = '\0';
+      result = DCC.processCommand(inString);
+      Serial.print(inString);
+      Serial.println(result? " ok" : " error");
+      isStarted = false;
+      inString[0] = '\0';
+    }
+    else{
+      inString[inPos++] = inChar;
+      inPos %= INPUT_LEN_MAX;
+    }
+  }
+
+
+
   loco.loop();
   speedSensor.loop();
 
   if (timer.hasFired()) {
-    // intercom.recv(&sensors, sizeof(sensors));
-    intercom.send(&controls, sizeof(controls));
-
     loco.state.speed = speedSensor.getSpeed();
     loco.state.distance = speedSensor.getDistance();
     loco.state.battery = 0;
@@ -98,4 +144,3 @@ void loop() {
     }
   }
 }
- 
