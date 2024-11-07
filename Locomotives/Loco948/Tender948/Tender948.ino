@@ -48,14 +48,14 @@ class Tender948: public RCCLoco {
     using RCCLoco::RCCLoco;
 
     void onFunction(char code, bool value) {
-      DCC.CmdFunction(code, value);
+      dcc.CmdFunction(code, value);
     }
 
     void onThrottle(uint8_t direction, uint8_t throttle) {
       if ((_direction != direction) || (_throttle != throttle)) {
         uint8_t d = (direction == 2) ? 0 : 1;
         uint8_t t = map(throttle, 0, 100, 0, 128);
-        DCC.CmdSpeed(d, t);
+        dcc.CmdSpeed(d, t);
         _direction = direction;
         _throttle = throttle;
       }
@@ -71,13 +71,6 @@ class Tender948: public RCCLoco {
 Tender948 loco(&wireless, NODE, NAME, &storage);
 
 
-#define INPUT_LEN_MAX 10
-bool isStarted = false;
-char inString[INPUT_LEN_MAX];
-uint8_t inPos = 0;
-bool result;
-
-
 void setup() {
   Serial.begin(115200);
   speedSensor.setup();
@@ -85,34 +78,13 @@ void setup() {
   timer.start(100);
   watchdog.start(5000);
 
-  DCC.DCC_begin();
+  dcc.setup();
 }
 
 void loop() {
-  while (Serial.available()) {
-    char inChar = Serial.read();
-    if (inChar == '<'){
-      isStarted = true;
-      inPos = 0;
-    }
-    else if (inChar == '>' && isStarted){
-      inString[inPos] = '\0';
-      result = DCC.processCommand(inString);
-      Serial.print(inString);
-      Serial.println(result? " ok" : " error");
-      isStarted = false;
-      inString[0] = '\0';
-    }
-    else{
-      inString[inPos++] = inChar;
-      inPos %= INPUT_LEN_MAX;
-    }
-  }
-
-
-
   loco.loop();
   speedSensor.loop();
+  dcc.processCLI();
 
   if (timer.hasFired()) {
     loco.state.speed = speedSensor.getSpeed();
