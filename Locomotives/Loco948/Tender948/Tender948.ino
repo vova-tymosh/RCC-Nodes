@@ -48,27 +48,16 @@ class Tender948: public RCCLoco {
     using RCCLoco::RCCLoco;
 
     void onFunction(char code, bool value) {
-      char line[10];
-      if (value) value = 1;
-      sprintf(line, "F3%02d%1d", code, value);
-      bool result = DCC.processCommand(line);
-      Serial.print(line);
-      Serial.println(result? " ok" : " error");
+      DCC.CmdFunction(code, value);
     }
 
     void onThrottle(uint8_t direction, uint8_t throttle) {
       if ((_direction != direction) || (_throttle != throttle)) {
+        uint8_t d = (direction == 2) ? 0 : 1;
         uint8_t t = map(throttle, 0, 100, 0, 128);
-        char line[10];
-        if (direction == 2)
-          sprintf(line, "S30%03d", throttle);
-        else
-          sprintf(line, "S31%03d", throttle);
-        bool result = DCC.processCommand(line);
-        Serial.print(line);
-        Serial.println(result? " ok" : " error");
-      _throttle = throttle;
+        DCC.CmdSpeed(d, t);
         _direction = direction;
+        _throttle = throttle;
       }
     }
 
