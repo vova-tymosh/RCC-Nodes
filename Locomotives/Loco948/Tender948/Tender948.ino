@@ -4,7 +4,7 @@
 #include "SpeedSensor.h"
 #include "Timer.h"
 
-#include "DCC_Controller.h"
+#include "DccPipe.h"
 
 /*
 
