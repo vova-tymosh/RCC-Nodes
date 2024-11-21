@@ -75,6 +75,9 @@ Tender948 loco(&wireless, NODE, NAME, &storage);
 void setup()
 {
     Serial.begin(115200);
+
+    storage.save(0,0);
+
     speed_sensor.setup();
     loco.setup();
     timer.start(100);
@@ -90,7 +93,7 @@ void loop()
     dcc.processCLI();
 
     if (timer.hasFired()) {
-        loco.state.speed = speed_sensor.getSpeed();
+        loco.state.speed = 0;//speed_sensor.getSpeed();
         loco.state.distance = speed_sensor.getDistance();
         loco.state.battery = 0;
         // Serial.println("Tender:" + String(loco.state.throttle) + " " +
