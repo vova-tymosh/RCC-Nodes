@@ -7,6 +7,12 @@
 #include "RCCLoco.h"
 #include "SpeedSensor.h"
 #include "Timer.h"
+#include "Cli.h"
+
+// #include <Wire.h>
+// #include <Adafruit_INA219.h>
+
+// Adafruit_INA219 ina219;
 
 #if defined(ARDUINO_AVR_NANO)
     #define CE_PIN 10
@@ -37,7 +43,7 @@ public:
 
     void onFunction(char code, bool value)
     {
-        Serial.println("onFunction: " + String((int)code) + "/" + String(value));
+        // Serial.println("onFunction: " + String((int)code) + "/" + String(value));
         if (code == 0)
             yellow.apply(value);
         if (code == 1)
@@ -53,6 +59,30 @@ public:
 TestLoco loco(&wireless, NODE, NAME, NULL);//&storage);
 
 
+class Cli : public CliBase
+{
+public:
+    void onRead()
+    {
+        Serial.println("read");
+    }
+
+    void onSpeed(uint8_t direction, uint8_t throttle, bool is_dcc)
+    {
+        if (!is_dcc)
+            loco.onThrottle(direction, throttle);
+        // Serial.println("onSpeed " + String(direction) + "/" + String(throttle));
+    }
+
+    void onFunction(uint8_t code, bool value, bool is_dcc)
+    {
+        if (!is_dcc)
+            loco.onFunction(code, value);
+        // Serial.println("onFunction " + String(code) + "/" + String(value));
+    }
+};
+Cli cli;
+
 
 void setupSerial()
 {
@@ -60,6 +90,29 @@ void setupSerial()
     delay(250);
     Serial.println("Started");
 }
+
+
+// void power() 
+// {
+//     float shuntvoltage = 0;
+//     float busvoltage = 0;
+//     float current_mA = 0;
+//     float loadvoltage = 0;
+//     float power_mW = 0;
+
+//     shuntvoltage = ina219.getShuntVoltage_mV();
+//     busvoltage = ina219.getBusVoltage_V();
+//     current_mA = ina219.getCurrent_mA();
+//     power_mW = ina219.getPower_mW();
+//     loadvoltage = busvoltage + (shuntvoltage / 1000);
+
+//     Serial.print("Bus Voltage:   "); Serial.print(busvoltage); Serial.println(" V");
+//     Serial.print("Shunt Voltage: "); Serial.print(shuntvoltage); Serial.println(" mV");
+//     Serial.print("Load Voltage:  "); Serial.print(loadvoltage); Serial.println(" V");
+//     Serial.print("Current:       "); Serial.print(current_mA); Serial.println(" mA");
+//     Serial.print("Power:         "); Serial.print(power_mW); Serial.println(" mW");
+//     Serial.println("");
+// }
 
 void setup()
 {
@@ -75,16 +128,24 @@ void setup()
     timer.start(100);
     blinker.restart();
 
+//   if (! ina219.begin()) {
+    // Serial.println("Failed to find INA219 chip");
+    // while (1) { delay(10); }
+//   }
+
     // loco.debug = true;
 }
 
 void loop()
 {
+    cli.process();
+    
     if (blinker.hasFired()) {
         static bool flip = false;
         flip = !flip;
         if (flip) {
             digitalWrite(LED_BUILTIN, HIGH);
+            // power();
         } else {
             digitalWrite(LED_BUILTIN, LOW);
         }
