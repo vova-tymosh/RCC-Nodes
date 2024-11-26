@@ -13,8 +13,10 @@ private:
 
     bool processLine(char cmd[])
     {
-        char first = cmd[0];
         byte len = strlen(cmd);
+        if (len == 0)
+            return false;
+        char first = cmd[0];
         if (first == CMD_DCC && len > 1)
             return processCommand(cmd+1, true);
         else
@@ -42,22 +44,23 @@ private:
 
     bool processSpeed(char cmd[], bool is_dcc) 
     {
-        if (strlen(cmd) != 4)
+        if (strlen(cmd) == 0)
             return false;
-        char dir_text[2];
-        strncpy(dir_text, cmd, 1);
-        dir_text[1] = '\0';
+        char dir_text[2] = {cmd[0], '\0'};
         uint8_t dir = (uint8_t)atoi(dir_text);
-        int speed = atoi(cmd + 1);
-        if (speed > 100)
-            return false;
+        int speed = 0;
+        if (strlen(cmd) > 1) {
+            speed = atoi(cmd + 1);
+            if (speed > 100)
+                return false;
+        }
         onSpeed(dir, (uint8_t)speed, is_dcc);
         return true;
     }
 
     bool processFunction(char cmd[], bool is_dcc) 
     {
-        if (strlen(cmd) != 3)
+        if (strlen(cmd) < 2)
             return false;
         uint8_t function = (uint8_t)atoi(cmd + 1);
         onFunction(function, cmd[0] == '1', is_dcc);

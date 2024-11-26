@@ -32,9 +32,69 @@ Wireless wireless(CE_PIN, CSN_PIN);
 Timer timer;
 Timer blinker(1000);
 
-Motor motor(7, 8);
 Light yellow(0);
 Light blue(9);
+
+class Motor2
+{
+protected:
+    static const int MIN_THR = 20;
+    const int pin_back;
+    const int pin_fowd;
+    const int min_thr;
+    const int pin_bemf;
+    int direction;
+    int throttle;
+    Timer timer;
+
+public:
+    Motor2(int pin_back, int pin_fowd, int pin_bemf, int min_thr = MIN_THR) : 
+        pin_back(pin_back), pin_fowd(pin_fowd), pin_bemf(pin_bemf), min_thr(min_thr) {}
+
+    virtual void setup()
+    {
+        pinMode(pin_back, OUTPUT);
+        pinMode(pin_fowd, OUTPUT);
+        pinMode(pin_bemf, INPUT);
+        timer.start(700);
+    }
+
+    virtual void apply(int direction, int throttle)
+    {
+        const uint8_t MAX = 0xFF;
+        this->direction = direction;
+        this->throttle = throttle;
+        if (throttle > 0)
+            throttle = map(throttle, 0, 100, MAX - MIN_THR, 0);
+        else
+            throttle = MAX;
+        if (direction == 0) {
+            analogWrite(pin_back, 0);
+            analogWrite(pin_fowd, 0);
+        } else if (direction == 1) {
+            analogWrite(pin_back, MAX);
+            analogWrite(pin_fowd, throttle);
+        } else {
+            analogWrite(pin_back, throttle);
+            analogWrite(pin_fowd, MAX);
+        }
+    }
+    void loop()
+    {
+        if (timer.hasFired()) {
+            analogWrite(pin_back, 0);
+            analogWrite(pin_fowd, 0);
+            delayMicroseconds(40);
+            int v = analogRead(pin_bemf);
+            apply(direction, throttle);
+            Serial.println("BEMF = " + String(v));
+        }
+    }
+};
+Motor2 motor(8, 7, A2);
+
+
+
 
 class TestLoco : public RCCLoco
 {
@@ -52,8 +112,7 @@ public:
 
     void onThrottle(uint8_t direction, uint8_t throttle)
     {
-        // Serial.println("onThrottle: " + String(direction) + "/" + String(throttle));
-        motor.apply(direction, throttle);
+        //motor.apply(direction, throttle);
     }
 };
 TestLoco loco(&wireless, NODE, NAME, NULL);//&storage);
@@ -69,6 +128,9 @@ public:
 
     void onSpeed(uint8_t direction, uint8_t throttle, bool is_dcc)
     {
+        Serial.println("onThrottle: " + String(direction) + "/" + String(throttle));
+        motor.apply(direction, throttle);
+
         if (!is_dcc)
             loco.onThrottle(direction, throttle);
         // Serial.println("onSpeed " + String(direction) + "/" + String(throttle));
@@ -133,7 +195,7 @@ void setup()
         Serial.println("Failed to find INA219 chip");
     }
 
-    // loco.debug = true;
+// loco.debug = true;
 }
 
 void loop()
@@ -145,7 +207,7 @@ void loop()
         flip = !flip;
         if (flip) {
             digitalWrite(LED_BUILTIN, HIGH);
-            power();
+            // power();
         } else {
             digitalWrite(LED_BUILTIN, LOW);
         }
@@ -153,6 +215,7 @@ void loop()
 
 
     loco.loop();
+    motor.loop();
 
     if (timer.hasFired()) {
         loco.state.speed = 0;
