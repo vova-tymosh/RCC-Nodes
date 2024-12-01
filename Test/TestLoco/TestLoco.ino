@@ -3,16 +3,13 @@
  *
  *
  */
+
 #include "Peripheral.h"
-#include "RCCLoco.h"
+// #include "RCCLoco.h"
 #include "SpeedSensor.h"
 #include "Timer.h"
 #include "Cli.h"
 
-#include <Wire.h>
-#include <Adafruit_INA219.h>
-
-Adafruit_INA219 ina219;
 
 #if defined(ARDUINO_AVR_NANO)
     #define CE_PIN 10
@@ -25,77 +22,23 @@ Adafruit_INA219 ina219;
     #define CSN_PIN 0
 #endif
 
-const int NODE = 01;
-const char *NAME = "t001";
-// Storage storage;
-Wireless wireless(CE_PIN, CSN_PIN);
+
+// const int NODE = 01;
+// const char *NAME = "t001";
+// // Storage storage;
+// Wireless wireless(CE_PIN, CSN_PIN);
+
 Timer timer;
 Timer blinker(1000);
 
-Light yellow(0);
-Light blue(9);
-
-class Motor2
-{
-protected:
-    static const int MIN_THR = 20;
-    const int pin_back;
-    const int pin_fowd;
-    const int min_thr;
-    const int pin_bemf;
-    int direction;
-    int throttle;
-    Timer timer;
-
-public:
-    Motor2(int pin_back, int pin_fowd, int pin_bemf, int min_thr = MIN_THR) : 
-        pin_back(pin_back), pin_fowd(pin_fowd), pin_bemf(pin_bemf), min_thr(min_thr) {}
-
-    virtual void setup()
-    {
-        pinMode(pin_back, OUTPUT);
-        pinMode(pin_fowd, OUTPUT);
-        pinMode(pin_bemf, INPUT);
-        timer.start(700);
-    }
-
-    virtual void apply(int direction, int throttle)
-    {
-        const uint8_t MAX = 0xFF;
-        this->direction = direction;
-        this->throttle = throttle;
-        if (throttle > 0)
-            throttle = map(throttle, 0, 100, MAX - MIN_THR, 0);
-        else
-            throttle = MAX;
-        if (direction == 0) {
-            analogWrite(pin_back, 0);
-            analogWrite(pin_fowd, 0);
-        } else if (direction == 1) {
-            analogWrite(pin_back, MAX);
-            analogWrite(pin_fowd, throttle);
-        } else {
-            analogWrite(pin_back, throttle);
-            analogWrite(pin_fowd, MAX);
-        }
-    }
-    void loop()
-    {
-        if (timer.hasFired()) {
-            analogWrite(pin_back, 0);
-            analogWrite(pin_fowd, 0);
-            delayMicroseconds(40);
-            int v = analogRead(pin_bemf);
-            apply(direction, throttle);
-            Serial.println("BEMF = " + String(v));
-        }
-    }
-};
-Motor2 motor(8, 7, A2);
+Light yellow(D0);
+Light blue(D9);
+PowerMeter powerMeter;
+Motor2 motor(D8, D7, A2);
 
 
 
-
+/*
 class TestLoco : public RCCLoco
 {
 public:
@@ -112,18 +55,39 @@ public:
 
     void onThrottle(uint8_t direction, uint8_t throttle)
     {
-        //motor.apply(direction, throttle);
+        motor.apply(direction, throttle);
     }
 };
 TestLoco loco(&wireless, NODE, NAME, NULL);//&storage);
+*/
 
+bool on_radio = false;
+void (*reboot)(void) = 0;
 
 class Cli : public CliBase
 {
 public:
-    void onRead()
+    void onExe(uint8_t code)
     {
-        Serial.println("read");
+        switch (code) {
+        case '0':
+            reboot();
+            break;
+        case 'V':
+            Serial.println(powerMeter.readVoltage());
+            break;
+        case 'C':
+            Serial.println(powerMeter.readCurrent());
+            break;
+        case 'B':
+            Serial.println(motor.readBemf());
+            break;
+        case 'R':
+            Serial.println("Start radio");
+            on_radio = true;
+            // loco.setup();
+            break;
+        }
     }
 
     void onSpeed(uint8_t direction, uint8_t throttle, bool is_dcc)
@@ -131,15 +95,19 @@ public:
         Serial.println("onThrottle: " + String(direction) + "/" + String(throttle));
         motor.apply(direction, throttle);
 
-        if (!is_dcc)
-            loco.onThrottle(direction, throttle);
+        // if (!is_dcc)
+        //     loco.onThrottle(direction, throttle);
         // Serial.println("onSpeed " + String(direction) + "/" + String(throttle));
     }
 
     void onFunction(uint8_t code, bool value, bool is_dcc)
     {
-        if (!is_dcc)
-            loco.onFunction(code, value);
+        if (code == 0)
+            yellow.apply(value);
+        if (code == 1)
+            blue.apply(value);
+        // if (!is_dcc)
+        //     loco.onFunction(code, value);
         // Serial.println("onFunction " + String(code) + "/" + String(value));
     }
 };
@@ -153,49 +121,21 @@ void setupSerial()
     Serial.println("Started");
 }
 
-
-void power()
-{
-    float shuntvoltage = 0;
-    float busvoltage = 0;
-    float current_mA = 0;
-    float loadvoltage = 0;
-    float power_mW = 0;
-
-    shuntvoltage = ina219.getShuntVoltage_mV();
-    busvoltage = ina219.getBusVoltage_V();
-    // As shunt is 0.1
-    current_mA = ina219.getCurrent_mA() * 10;
-    power_mW = ina219.getPower_mW();
-    loadvoltage = busvoltage + (shuntvoltage / 1000);
-
-    Serial.print("Bus Voltage:   "); Serial.print(busvoltage); Serial.println(" V");
-    Serial.print("Shunt Voltage: "); Serial.print(shuntvoltage); Serial.println(" mV");
-    Serial.print("Load Voltage:  "); Serial.print(loadvoltage); Serial.println(" V");
-    Serial.print("Current:       "); Serial.print(current_mA); Serial.println(" mA");
-    Serial.print("Power:         "); Serial.print(power_mW); Serial.println(" mW");
-    Serial.println("");
-}
-
 void setup()
 {
     setupSerial();
     pinMode(LED_BUILTIN, OUTPUT);
 
-
-    // storage.setup(VERSION);
     motor.setup();
     yellow.setup();
     blue.setup();
-    loco.setup();
+    powerMeter.setup();
     timer.start(100);
     blinker.restart();
-
-    if (! ina219.begin()) {
-        Serial.println("Failed to find INA219 chip");
-    }
-
-// loco.debug = true;
+    
+    // storage.setup(VERSION);
+    // loco.setup();
+    // loco.debug = true;
 }
 
 void loop()
@@ -207,27 +147,26 @@ void loop()
         flip = !flip;
         if (flip) {
             digitalWrite(LED_BUILTIN, HIGH);
-            // power();
         } else {
             digitalWrite(LED_BUILTIN, LOW);
         }
     }
 
+    // if (on_radio)
+    //     loco.loop();
 
-    loco.loop();
-    motor.loop();
-
-    if (timer.hasFired()) {
-        loco.state.speed = 0;
-        loco.state.distance = 0;
-        loco.state.battery = 71;
-        loco.state.temperature = 83;
-        loco.state.psi = 24;
-        if (loco.debug) {
-            Serial.println("Loco:" + String(loco.state.throttle) + " " +
-                        String(loco.state.direction) + " " +
-                        String(loco.state.speed) + " " +
-                        String(loco.state.distance));
-        }
-    }
+    // if (timer.hasFired()) {
+    //     loco.state.speed = 0;
+    //     loco.state.distance = 0;
+    //     loco.state.battery = 71;
+    //     loco.state.temperature = 83;
+    //     loco.state.psi = 24;
+    //     if (loco.debug) {
+    //         Serial.println("Loco:" + String(loco.state.throttle) + " " +
+    //                     String(loco.state.direction) + " " +
+    //                     String(loco.state.speed) + " " +
+    //                     String(loco.state.distance));
+    //     }
+    // }
 }
+

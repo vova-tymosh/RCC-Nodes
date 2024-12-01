@@ -1,15 +1,11 @@
+import time
 from rccTest import *
 
-
-def test_power(s):
-    test_name = 'Test general power'
-    yn = input('\tIs Red light on? (Y/n)')
-    return (yn.lower() != 'n', test_name)
     
 def test_f0_on(s):
     test_name = 'Test Function 0 ON'
     writeSerial(s, 'F100')
-    readSerial(s)
+    printSerial(s)
     yn = input('\tIs Yellow light on? (Y/n)')
     return (yn.lower() != 'n', test_name)
 
@@ -28,7 +24,7 @@ def test_f0_blinking(s):
             flip = not flip
             start = millis()
     writeSerial(s, 'F000')
-    readSerial(s)
+    printSerial(s)
     return (yn.strip().lower() != 'n', test_name)
 
 def test_f1_blinking(s):
@@ -47,7 +43,7 @@ def test_f1_blinking(s):
             start = millis()
     # F1 is inverted, keep it off (set to 1)
     writeSerial(s, 'F101')
-    readSerial(s)
+    printSerial(s)
     return (yn.strip().lower() != 'n', test_name)
 
 def motor_blinker(s, direction):
@@ -70,7 +66,7 @@ def motor_blinker(s, direction):
                 writeSerial(s, 'S%d%03d'%(direction, 200 - speed))
             start = millis()
     writeSerial(s, 'S%d000'%direction)
-    readSerial(s)
+    printSerial(s)
     return yn
 
 def test_motor_forward(s):
@@ -85,22 +81,44 @@ def test_motor_backward(s):
     yn = motor_blinker(s, 2)
     return (yn.strip().lower() != 'n', test_name)
 
+def test_motor_bemf(s):
+    test_name = 'Test Motor BEMF'
+    writeSerial(s, 'RB')
+    data = readSerialFloat(s)
+    print(f'\tHas to be non-zero value: {data}')
+    return (data > 0, test_name)
 
-tests = [test_power, test_f0_on, test_f0_blinking, test_f1_blinking, test_motor_forward, test_motor_backward]
+def test_voltage(s):
+    test_name = 'Test Power Meter Voltage'
+    writeSerial(s, 'RV')
+    data = readSerialFloat(s)
+    print(f'\tHas to be higher than 10: {data}V')
+    return (data > 10, test_name)
 
-if __name__ == '__main__':
-    ser_name = findSerial()
-    if ser_name == None:
-        print('No serial port found')
-        exit(1)
-    s = openSerial(ser_name)
+def test_current(s):
+    test_name = 'Test Power Meter Current'
+    writeSerial(s, 'RC')
+    data = readSerialFloat(s)
+    print(f'\tHas to be non-zero value: {data}mA')
+    return (data > 0, test_name)
 
-    w = 80
-    for test in tests:
-        result, name = test(s)
-        if result:
-            print(name + 'ok'.rjust(w - len(name), '.'))
-        else:
-            print(name + 'FAIL'.rjust(w - len(name), '.'))
+def test_current_with_load(s):
+    test_name = 'Test Current With Load'
+    writeSerial(s, 'S1100')
+    printSerial(s)
+    writeSerial(s, 'F100')
+    printSerial(s)
+    writeSerial(s, 'F001')
+    printSerial(s)
+    time.sleep(0.2)
+    writeSerial(s, 'RC')
+    data = readSerialFloat(s)
+    writeSerial(s, 'S10')
+    printSerial(s)
+    writeSerial(s, 'F000')
+    printSerial(s)
+    writeSerial(s, 'F101')
+    printSerial(s)
+    print(f'\tHas to be higher than 30: {data}mA')
+    return (data > 30, test_name)
 
-    s.close()
