@@ -27,9 +27,24 @@ def openSerial(ser_name):
 def writeSerial(s, data):
     s.write(data.encode('utf-8'))
 
-def readSerial(s, printLog=False):
+def printSerial(s, printLog=False):
     for i in range(1000):
         if s.in_waiting > 0:
             data = s.readline().decode('utf-8')
             if printLog and data:
                 print('\t#Log:', data.strip())
+
+def readSerial(s):
+    buffer = ''
+    for i in range(1000):
+        if s.in_waiting > 0:
+            data = s.readline().decode('utf-8')
+            if data:
+                buffer += data
+    return buffer
+
+def readSerialFloat(s):
+    data = readSerial(s)
+    if data:
+        data = data.split()[0]
+        return float(data)

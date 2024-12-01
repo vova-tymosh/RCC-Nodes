@@ -28,7 +28,7 @@ private:
         char first = cmd[0];
         if (strlen(cmd) > 1) {
             if (first == CMD_READ)
-                return processRead(cmd+1, is_dcc);
+                return processExe(cmd+1, is_dcc);
             else if (first == CMD_SPEED)
                 return processSpeed(cmd+1, is_dcc);
             else if (first == CMD_FUNCTION)
@@ -37,8 +37,11 @@ private:
         return false;
     }
 
-    bool processRead(char cmd[], bool is_dcc) 
+    bool processExe(char cmd[], bool is_dcc) 
     {
+        if (strlen(cmd) == 0)
+            return false;
+        onExe(cmd[0]);
         return true;
     }
 
@@ -70,7 +73,7 @@ private:
 
 public:
 
-    virtual void onRead() {}
+    virtual void onExe(uint8_t code) {}
 
     virtual void onSpeed(uint8_t direction, uint8_t throttle, bool is_dcc) {}
 
