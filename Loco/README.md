@@ -17,6 +17,38 @@ The decoder can drive a motor for up to 3Amp. It has 6 outputs that can drive li
 
 This is the best choise if you want to run just couple locomotives, usually one at a time, and you want to keep everything really simple. You may heard about JMRI or DCC-EX but you don't know what it is and you don't want to know. You just want to have fun. What you would need is the RCC Decoder and a phone or a tablet as a Throttle. Recomennded CPU for this setup is Xiao ESP32C3 (you can get one from [Seed Studio](tbd) or [Amazon](tbd)). Actually any of Xiao ESP32 boards will do (C3, C6, S3), but C3 is the cheapest and it works just fine.
 
+1. Install Arduino IDE
+2. Add esp32 support
+3. Connect Antena
+4. Download sw from [locoWT](tbd)
+5. Start IDE, select port/board
+6. Update wifi, upload
+
+### WiFi + JMRI
+
+This is sligtly more complicated setup. You may still use a phone or a tablet as a Throttle, and you'd be able to run many locomotives at the same time. The complexity comes from a Central Station. You would need to build one. More details on how to do so on [RCC Station](tbd) page. 
+The same Xiao ESP32C3 (or C6 or S3) can be used for CPU. 
+
+1. Install Arduino IDE
+2. Add esp32 support
+3. Connect Antena
+4. Download sw from [locoJMRI](tbd)
+5. Start IDE, select port/board
+6. Update wifi, upload
+
+
+### NRF
+
+This is more complicated option, the main benefit is versitility. It may work with or without command station, it doesn't need WiFi. But it does require [RCC Throttle](https://github.com/vova-tymosh/RCC-Nodes/tree/main/Throttle).
+
+2. Install Arduino IDE
+3. Add nrf52 support
+4. Download sw from [locoNRF](tbd)
+5. Start IDE, select port/board
+6. Upload
+
+
+
 
 
 
