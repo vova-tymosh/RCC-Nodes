@@ -16,7 +16,7 @@ Now you need to select a CPU. This is mostly driven by type of a Throttle you wa
 
 ## CPU Selection
 RCC Decoder is based on a [Xiao from Seeed Studio](https://www.seeedstudio.com/xiao-series-page). These are the tiny modules and RCC supports veriaty of them with WiFi or BLE connectivity.
-![Xiao](image/XIAO.jpg) 
+
 
 ### Simple WiThrottle
 
