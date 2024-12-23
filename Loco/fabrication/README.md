@@ -19,6 +19,7 @@ This page describes how to fabricate a motherboard for an RCC locomotive decoder
 11. Now it asks you for 2 more files - select **BOM_xx** for the BOM one and **CPL_xx** for the CPL one.
 12. You'll see the error message with the following text. This is normal, these are not real components but just pads. Say **Continue**.
 ```
+Error
 The below parts won't be assembled due to data missing.
 X1,X2,X3,X4,X1,X5,X6,X7 designators don't exist in the BOM file.
 ```
