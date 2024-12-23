@@ -13,12 +13,10 @@ Now you need to select a CPU. This is mostly driven by type of a Throttle you wa
  - Sound: _coming soon_ motherboard is capable of playing sounds, software support will be available soon
  - Price: this is one of the best parts. Five fully assembled boards would cost you $60 (plus shipping, say $20). So, it is about $16 per board. The CPU is $10 per unit. So, you can get a fully functional decoder with sound and eveything for under $30, shipping and taxes included! Nothing this powerfull is remotly this affordable.
 
-This is how the assembled RCC Decoder looks like:
-![Rcc Decoder look](image/look.jpg)
-
 
 ## CPU Selection
-RCC Decoder is based on a [Xiao from Seeed Studio](https://www.seeedstudio.com/xiao-series-page). 
+RCC Decoder is based on a [Xiao from Seeed Studio](https://www.seeedstudio.com/xiao-series-page). These are the tiny modules and RCC supports veriaty of them with WiFi or BLE connectivity.
+![Xiao](image/XIAO.jpg)
 
 ### Simple WiThrottle
 
