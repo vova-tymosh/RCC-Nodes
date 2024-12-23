@@ -1,2 +1,2 @@
 
-link to [fab](wiki/fabrication)
+link to [fab](../../../wiki/fabrication)
