@@ -18,6 +18,7 @@ This is how the assembled RCC Decoder looks like:
 
 
 ## CPU Selection
+RCC Decoder is based on a [Xiao from Seeed Studio](https://www.seeedstudio.com/xiao-series-page). 
 
 ### Simple WiThrottle
 
