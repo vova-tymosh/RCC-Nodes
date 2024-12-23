@@ -1,6 +1,6 @@
 # Locomotove controller
 
-1. Download all 3 files from [fabrication](Loco/fabrication) folder above, 
+1. Download all 3 files from [fabrication](fabrication) folder above, 
 2. Go to <link>
 3. Click **Get Quote** and then **Uplolad Gerber**
 5. Selecte the **Gerber_xx** file you donwloaded in the step 1
