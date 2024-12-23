@@ -4,5 +4,6 @@
 2. Go to <link>
 3. Click **Get Quote** and then **Uplolad Gerber**
 5. Selecte the Gerber_xx file you donwloaded in the step 1
-6. Leave all the seting below as they are
-7. The only setting worth changing are: **PCB Color**
+6. Leave all the seting below as they are. The only setting worth changing are:
+  6.1. **PCB Color** - you may chose whatever you like more
+  6.2 Bla 
