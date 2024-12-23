@@ -16,8 +16,10 @@
 10. Click **Next**. It will show you how the PCB would look like. CLick **Next** again.
 11. Now it asks you for 2 more files - select **BOM_xx** for the BOM one and **CPL_xx** for the CPL one.
 12. You'll see the error message with the following text. This is normal, these are not real components but just pads. Say **Continue**.
-    ```The below parts won't be assembled due to data missing.
-X1,X2,X3,X4,X1,X5,X6,X7 designators don't exist in the BOM file.```
+```
+The below parts won't be assembled due to data missing.
+X1,X2,X3,X4,X1,X5,X6,X7 designators don't exist in the BOM file.
+```
 13. Now you see the list of your components. If everything is still in stock all the rows should be checked in the last column.
     - If you, like me, don't want this screw terminal and prefer dupont connectors, unselect items J1 and J2
 14. CLick **Next**, go to payment, select your shipping and boom! The boards will arrive to your door soon.
