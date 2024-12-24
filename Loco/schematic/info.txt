@@ -1,0 +1,29 @@
+Change log:
+
+v0.5: Expand ground plane, add screw terminals, remove extra connectors
+v0.4: Remove bul. Add sound, bemf, I2C GPIOs
+v0.3: Add bulk capacitor
+v0.2: Fix i2c
+v0.1: Very initial build
+
+
+
+
+Schematic details and considerations:
+
+Capacitors:
+    ina219, XIAO, ULN: no caps
+    LDO: 1uF on both sides
+    DRV: 1+100uF
+    MAX: 10+0.1uF
+    TCA: Likely 1uF
+
+Voltage rating:
+    LDO: 24V
+    DRV: 45v
+    ULN: 50v
+    ina: 26v
+
+I2C Addresses:
+    INA: 0x40
+    TCA: 0x42-43
