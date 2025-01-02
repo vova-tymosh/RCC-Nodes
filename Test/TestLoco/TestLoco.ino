@@ -6,21 +6,11 @@
 
 #include "Peripheral.h"
 // #include "RCCLoco.h"
-#include "SpeedSensor.h"
+// #include "SpeedSensor.h"
 #include "Timer.h"
 #include "Cli.h"
 
 
-#if defined(ARDUINO_AVR_NANO)
-    #define CE_PIN 10
-    #define CSN_PIN 9
-#elif defined(ARDUINO_AVR_LEONARDO)
-    #define CE_PIN 19
-    #define CSN_PIN 18
-#elif defined(ARDUINO_ARCH_NRF52)
-    #define CE_PIN 0
-    #define CSN_PIN 0
-#endif
 
 
 // const int NODE = 01;
@@ -31,11 +21,10 @@
 Timer timer;
 Timer blinker(1000);
 
-Light yellow(D0);
-Light blue(D9);
+PinExt yellow(2);
+Pin blue(D0);
 PowerMeter powerMeter;
-Motor2 motor(D8, D7, A2);
-
+Motor2 motor;
 
 
 /*
@@ -124,11 +113,11 @@ void setupSerial()
 void setup()
 {
     setupSerial();
-    pinMode(LED_BUILTIN, OUTPUT);
+    // pinMode(LED_BUILTIN, OUTPUT);
 
     motor.setup();
-    yellow.setup();
-    blue.setup();
+    yellow.begin();
+    blue.begin();
     powerMeter.setup();
     timer.start(100);
     blinker.restart();
@@ -147,6 +136,7 @@ void loop()
         flip = !flip;
         if (flip) {
             digitalWrite(LED_BUILTIN, HIGH);
+            // Serial.println("Loco:");
         } else {
             digitalWrite(LED_BUILTIN, LOW);
         }
