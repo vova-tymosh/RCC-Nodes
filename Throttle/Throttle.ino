@@ -7,7 +7,7 @@
 #include "ThrComms.h"
 #include "Timer.h"
 #include "UI.h"
-#include "Wireless.h"
+// #include "Wireless.h"
 #include <Keypad.h>
 
 // *** Keyboard
@@ -24,8 +24,8 @@ Keypad keypad(makeKeymap(keys), row_pins, col_pins, ROWS, COLS);
 
 // *** Comms
 const int node = 4;
-Wireless wireless;
-ThrComms comms(&wireless);
+// Wireless wireless;
+ThrComms comms;
 struct LocoState loco;
 
 // *** Screens and UI
@@ -80,9 +80,11 @@ void setupSerial()
 void setup()
 {
     setupSerial();
-    storage.setup();
+    storage.begin();
 
-    setting.bitstate = storage.restore();
+    // setting.bitstate = storage.restore();
+    storage.readOrCreate("setting", &setting.bitstate, sizeof(setting.bitstate));
+
     Serial.println("Settings: " + String(setting.bitstate));
 
     if (setting.local)

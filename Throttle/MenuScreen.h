@@ -7,6 +7,7 @@
 
 extern UserInterface ui;
 extern ThrComms comms;
+extern Storage storage;
 
 class MenuItem
 {
@@ -75,7 +76,7 @@ public:
     void toggle()
     {
         setting.bitstate ^= (1 << index);
-        storage.save(setting.bitstate);
+        storage.write("setting", &setting.bitstate, sizeof(setting.bitstate));
     }
 };
 
