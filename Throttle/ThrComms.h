@@ -6,7 +6,8 @@
 #pragma once
 #include "LocoState.h"
 #include "Timer.h"
-#include "Wireless.h"
+#include "Transport.h"
+#include "nrf52/Wireless.h"
 
 #define MAX_PACKET 128
 #define MAX_LOCO 5
@@ -30,6 +31,10 @@ private:
     static const char PACKET_THR_SUB = 's';
     static const char PACKET_THR_NORM = 'p';
     static const char PACKET_LOCO_NORM = 'n';
+
+    const int FUNCTION_BASE = ' ';
+    const int FUNCTION_END = FUNCTION_BASE + 32 - 2; // 2 bits for direction
+
     Wireless *wireless;
     CommandExt command;
     Timer timer;
@@ -53,7 +58,10 @@ private:
     bool alive;
 
 public:
-    ThrComms(Wireless *wireless) : wireless(wireless), timer(100) {};
+    ThrComms() : timer(100)
+    {
+        wireless = new Wireless();
+    };
 
     uint16_t getLostRate()
     {

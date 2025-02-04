@@ -13,20 +13,14 @@ extern ThrComms comms;
 class HomeScreen : public BaseState
 {
 private:
-    Timer direction_cycle, battery_cycle;
+    Timer battery_cycle;
 
     char renderDirection()
     {
-        static bool animation;
-        if (loco.direction == 2)
+        if (loco.direction == 0)
             return 'R';
-        else if (loco.direction == 1)
+        else
             return 'F';
-        else {
-            if (direction_cycle.hasFired())
-                animation = !animation;
-            return animation ? 0xEF : ' ';
-        }
     }
 
     void renderBattery()
@@ -115,21 +109,17 @@ private:
     }
 
 public:
-    HomeScreen() : direction_cycle(500), battery_cycle(500) {};
+    HomeScreen() : battery_cycle(500) {};
 
     State handle(char key)
     {
         if (key == 'm') {
             return STATE_MENU;
         } else if (key == 'd') {
-            if (loco.speed == 0) {
-                if (controls.direction == 1)
-                    controls.direction = 2;
-                else
-                    controls.direction = 1;
-            } else {
+            if (controls.direction != 0)
                 controls.direction = 0;
-            }
+            else
+                controls.direction = 1;
             comms.send('d', (float)controls.direction);
         }
         if (setting.bigui)
