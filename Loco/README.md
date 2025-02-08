@@ -11,13 +11,13 @@ Here is more detailed steps with links to even more step-by-step instructions:
 2. Download the latest release of RCC from #here#.
 3. Order motherboards for your decoders. Step-by-step instructions are on ths [fabrication](fabrication) page. 
 4. Solder the CPU to the motherboard. Here is that scary word - solder. But fear not, it is fairly simple process and I’ll provide instructions and videos here (_coming soon_).
-5. Upload software to the final decoder, the details about how to do that is on the [upload](UPLOAD.md) page.
-6. Right after the software upload the decoder starts as a WiFi access point with the name “RCC_Loco” and the same password. You may keep it this way, especially if you plan to use an old phone or a tablet that is always connected to this WiFi and you don’t need internet access on this phone/tablet. Alternatively, you may connect your decoder to your home WiFi. In such case you may use your main phone, as it would be connected to the internet as well as to a decoder. More details are on the [First Setup](FIRST_SETUP.md)
-7. Your decoder is ready to be placed in a locomotive. Go ahead and do that, more details about how to connect all the wires are on the [Install](INSTALL.md) page.
+5. Upload software to the final decoder, the details about how to do that is on the [Upload](upload.md) page.
+6. By default the decoder starts as a WiFi access point with the name “RCC_Loco” and the same password. You may keep it this way, especially if you plan to use an old phone or a tablet that is always connected to this WiFi and you don’t need internet access on this phone/tablet. Alternatively, you may connect your decoder to your home WiFi. In such case you may use your main phone, as it would be connected to the internet as well as to a decoder. More details are on the [First Setup](first_setup.md)
+7. Your decoder is ready to be placed in a locomotive. Go ahead and do that, more details about how to connect all the wires are on the [Install](install.md) page.
 8. Get a Throttle app on your mobile device - "Engine Driver" for Android or "WiThrottle" for iPhone. Any other app that supports WiThrottle protocol will do too.
 9. Start the app, connect to your locomotive decoder, enjoy!
 
-**Decoder Specs**
+**Decoder Specs**  
 Power Supply: battery 7v to 24v.
 Power: RCC decoder can drive a motor of up to 3 Amp.
 Functions: RCC decoder can control up to 6 external functions like lights, smoke units or similar.
