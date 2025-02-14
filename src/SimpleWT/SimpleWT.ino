@@ -11,10 +11,9 @@ Storage storage;
 Settings settings;
 Timer timer;
 const float inches_per_click = 0.245;
-SpeedSensor speed_sensor(PIN_SPEED_PIN, inches_per_click);
-SpeedSensorBase *speed_sensor_ptr = &speed_sensor;
+SpeedSensor speedSensor(PIN_SPEED_PIN, inches_per_click);
 
-Motor motor;
+Motor motor(PIN_MOTOR_BCK, PIN_MOTOR_FWD);
 PinExt function[] = {PinExt(0), PinExt(1), PinExt(2), PinExt(3), PinExt(4), PinExt(5)};
 
 
@@ -55,28 +54,30 @@ void setup()
     delay(100);
     storage.begin();
     settings.checkDefaults(defaultSettings, defaultSettingsSize);
+    loco.debugLevel = 2;
     loco.setup();
-    speed_sensor.setup();
+    speedSensor.setup();
     motor.setup();
     function[0].begin();
 
     timer.start(500);
+
 }
 
 void loop()
 {
     loco.loop();
-    speed_sensor.loop();
+    speedSensor.loop();
     motor.loop();
 
-    if (timer.hasFired()) {
-        loco.state.speed = speed_sensor.getSpeed();
-        loco.state.distance = speed_sensor.getDistance();
-        String name = settings.get("loconame");
-        Serial.println(name + ": " + String(loco.state.throttle)   + " " +
-                            String(loco.state.direction)
-                              + " " + String(loco.state.speed)   + " " +
-                              String(loco.state.distance));
-    }
+    // if (timer.hasFired()) {
+    //     loco.state.speed = speedSensor.getSpeed();
+    //     loco.state.distance = speedSensor.getDistance();
+    //     String name = settings.get("loconame");
+    //     Serial.println(name + ": " + String(loco.state.throttle)   + " " +
+    //                         String(loco.state.direction)
+    //                           + " " + String(loco.state.speed)   + " " +
+    //                           String(loco.state.distance));
+    // }
 }
  
