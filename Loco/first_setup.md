@@ -2,8 +2,9 @@
 
 1. Using your phone, tablet or computer go to _RCC_Loco_ WiFi. Password is also _RCC_Loco_.
 2. Open browser and go to http://192.168.4.1
-3. Here is what you’d see
-![rcc web config](image/RccWebConfig.png)
+3. Here is what you’d see:
+![rcc web config](image/RCCWebConfig.png)
+
 5. Chose if you want to run your decoder on its own WiFi, or to be connected to your home network:
    - If you want the decoder to have its own WiFi, to be an access point, keep the Access Point Mode checkbox marked. You may change WiFi name (WiFi SSID) and password if you want to. If you do change it you’d need to reconnect your phone/tablet/computer to the new one after you are done. This mode is good if your layout is outside of your home WiFi. The only downside is your phone/tablet/computer will not have internet access while it is connected to this WiFi. Might be a good idea to use an old device just as a throttle (always connected to this WiFi only). 
    - You may connect your decoder to your home network. For then unmark the checkbox, provide your home WiFi SSID and password. Just make sure you are connecting to the WiFi of 2.4GHz. The 5GHz one is not supported.
