@@ -4,8 +4,8 @@
 2. Open browser and go to http://192.168.4.1
 3. Here is what you’d see ##TODO - add picture##
 4. Chose if you want to run your decoder on its own WiFi, or to be connected to your home network:
-    4.1 If you want the decoder to have its own WiFi, to be an access point, keep the Access Point Mode checkbox marked. You may change WiFi name (WiFi SSID) and password if you want to. If you do change it you’d need to reconnect your phone/tablet/computer to the new one after you are done. This mode is good if your layout is outside of your home WiFi. The only downside is your phone/tablet/computer will not have internet access while it is connected to this WiFi. Might be a good idea to use an old device just as a throttle (always connected to this WiFi only). 
-    4.2 You may connect your decoder to your home network. For then unmark the checkbox, provide your home WiFi SSID and password. Just make sure you are connecting to the WiFi of 2.4GHz. The 5GHz one is not supported.
+   - If you want the decoder to have its own WiFi, to be an access point, keep the Access Point Mode checkbox marked. You may change WiFi name (WiFi SSID) and password if you want to. If you do change it you’d need to reconnect your phone/tablet/computer to the new one after you are done. This mode is good if your layout is outside of your home WiFi. The only downside is your phone/tablet/computer will not have internet access while it is connected to this WiFi. Might be a good idea to use an old device just as a throttle (always connected to this WiFi only). 
+   - You may connect your decoder to your home network. For then unmark the checkbox, provide your home WiFi SSID and password. Just make sure you are connecting to the WiFi of 2.4GHz. The 5GHz one is not supported.
 5. The Loco Name and Address is a DCC-like name and address to identify your loco in the app. Default name is RCC and address is 3. If you put an address bigger than 127 it will show in your WiThrottle app as a Long address. Smaller numbers will be shown as Short.
 6. Hit Submit and then power cycle the decoder.
 
