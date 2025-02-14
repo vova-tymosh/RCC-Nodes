@@ -1,7 +1,7 @@
 Change log:
 
 v0.5: Expand ground plane, add screw terminals, remove extra connectors
-v0.4: Remove bul. Add sound, bemf, I2C GPIOs
+v0.4: Remove bulk. Add sound, bemf, I2C GPIOs
 v0.3: Add bulk capacitor
 v0.2: Fix i2c
 v0.1: Very initial build
@@ -26,4 +26,4 @@ Voltage rating:
 
 I2C Addresses:
     INA: 0x40
-    TCA: 0x42-43
+    TCA: 0x21 (addr pin is connected to VCC, so the address is 0x21, not 0x20)
