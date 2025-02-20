@@ -1,5 +1,7 @@
 # First Setup
 
+The First Setup goes after you upload your software to the decoder. The CPU might be already soldered to the motherboard or it can still be stand alone.
+
 1. Using your phone, tablet or computer go to _RCC_Loco_ WiFi. Password is also _RCC_Loco_.
 2. Open browser and go to http://192.168.4.1
 3. Here is what you’d see:
