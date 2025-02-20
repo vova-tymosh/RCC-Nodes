@@ -16,10 +16,10 @@ Here is how to upload software to your new decioder. By this moment you should h
 10. You are done, you may progress to the [First Setup](first_setup.md).
 
 Starting screen (step 2):
-![start](image/esp original screen.png)
+![start](image/esp_original_screen.png)
 
 Ready to upload (step 8):
-![ready](image/esp ready to program.png)
+![ready](image/esp_ready_program.png)
 
 Done (after step 8):
-![done](image/esp done.png)
+![done](image/esp_done.png)
