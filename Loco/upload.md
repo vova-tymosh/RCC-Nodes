@@ -15,11 +15,12 @@ Here is how to upload software to your new decioder. By this moment you should h
 9. Now click a RESET button on the CPU module.
 10. You are done, you may progress to the [First Setup](first_setup.md).
 
-Starting screen (step 2):
+
+### Starting screen (step 2):
 ![start](image/esp_original_screen.png)
 
-Ready to upload (step 8):
+### Ready to upload (step 8):
 ![ready](image/esp_ready_program.png)
 
-Done (after step 8):
+### Done (after step 8):
 ![done](image/esp_done.png)
