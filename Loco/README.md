@@ -12,7 +12,7 @@ RCC decoder is built out of just two components - a motherboard and a CPU (yep, 
 
 
 1. As of now only one technology stack and a corresponding CPU is supported. It is enough to run a couple trains using your phone as a throttle. The CPU is the Seeed Studio Xiao module. Go ahead and buy Xiao ESP32C3 (you can get one from Seed Studio or Amazon). More options are coming, see [CPU Selection](cpu_selection.md) for more details. You’d need one CPU per decoder/loco.
-2. Download the latest [RCC release](/releases). Unzip it somewhere on your computer.
+2. Download the latest [RCC release](https://github.com/vova-tymosh/RCC-Nodes/releases). Unzip it somewhere on your computer.
 3. Order motherboard for your decoder. Use the 3 files from the fabrication sub-folder of the release you just downloaded and send them to jlpcb.com (or similar vendor). Step-by-step instructions are on [fabrication](fabrication). You’d need one motherboard per decoder/loco.
 4. Solder the CPU to the motherboard. Here is that scary word - solder. But fear not, it is a fairly simple process and I’ll provide instructions and videos (I promise, I’ll do it soon).
 5. Upload software to the final decoder, the details about how to do that is on the [Upload](upload.md) page.
