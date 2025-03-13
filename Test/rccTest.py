@@ -47,4 +47,7 @@ def readSerialFloat(s):
     data = readSerial(s)
     if data:
         data = data.split()[0]
-        return float(data)
+        try:
+            return float(data)
+        except:
+            return 0.0

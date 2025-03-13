@@ -5,29 +5,25 @@
  */
 
 #include "Peripheral.h"
-// #include "RCCLoco.h"
-// #include "SpeedSensor.h"
+#include "Motherboard.h"
+#include "RCCLoco.h"
+#include "Storage.h"
 #include "Timer.h"
-#include "Cli.h"
 
 
 
 
-// const int NODE = 01;
-// const char *NAME = "t001";
-// // Storage storage;
-// Wireless wireless(CE_PIN, CSN_PIN);
-
-Timer timer;
-Timer blinker(1000);
-
+Storage storage;
+Settings settings;
 PinExt yellow(2);
 Pin blue(D0);
 PowerMeter powerMeter;
-Motor2 motor;
+Motor motor(PIN_MOTOR_BCK, PIN_MOTOR_FWD);
+Timer timer;
+Timer blinker(1000);
 
 
-/*
+
 class TestLoco : public RCCLoco
 {
 public:
@@ -47,13 +43,14 @@ public:
         motor.apply(direction, throttle);
     }
 };
-TestLoco loco(&wireless, NODE, NAME, NULL);//&storage);
-*/
+TestLoco loco;
 
+
+/*
 bool on_radio = false;
 void (*reboot)(void) = 0;
 
-class Cli : public CliBase
+class Cli : public RccCli
 {
 public:
     void onExe(uint8_t code)
@@ -100,20 +97,16 @@ public:
         // Serial.println("onFunction " + String(code) + "/" + String(value));
     }
 };
-Cli cli;
-
-
-void setupSerial()
-{
-    Serial.begin(115200);
-    delay(250);
-    Serial.println("Started");
-}
+Cli */
 
 void setup()
 {
-    setupSerial();
-    // pinMode(LED_BUILTIN, OUTPUT);
+    Serial.begin(115200);
+    delay(250);
+
+    storage.begin();
+    settings.checkDefaults(defaultSettings, defaultSettingsSize);
+
 
     motor.setup();
     yellow.begin();
@@ -123,14 +116,15 @@ void setup()
     blinker.restart();
     
     // storage.setup(VERSION);
-    // loco.setup();
+    loco.setup();
     // loco.debug = true;
 }
 
 void loop()
 {
-    cli.process();
-    
+    loco.loop();
+
+
     if (blinker.hasFired()) {
         static bool flip = false;
         flip = !flip;
@@ -144,19 +138,5 @@ void loop()
 
     // if (on_radio)
     //     loco.loop();
-
-    // if (timer.hasFired()) {
-    //     loco.state.speed = 0;
-    //     loco.state.distance = 0;
-    //     loco.state.battery = 71;
-    //     loco.state.temperature = 83;
-    //     loco.state.psi = 24;
-    //     if (loco.debug) {
-    //         Serial.println("Loco:" + String(loco.state.throttle) + " " +
-    //                     String(loco.state.direction) + " " +
-    //                     String(loco.state.speed) + " " +
-    //                     String(loco.state.distance));
-    //     }
-    // }
 }
 
