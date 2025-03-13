@@ -1,5 +1,5 @@
 # CPU Selection
-RCC Decoder is based on the Seeed Studio Xiao modules, you can read more about them [here](https://www.seeedstudio.com/xiao-series-page). These are really tiny micro computers, size of your thumb nail. RCC supports several variants of them with WiFi or BLE connectivity. Which one you need depends on how complicated you want your setup to be. Following sections provide details for each, below are the pictures of the CPU (the Xiao module).
+RCC Decoder is based on the Seeed Studio Xiao modules, you can read more about them [here](https://www.seeedstudio.com/xiao-series-page). These are really tiny micro computers, the size of your thumb nail. RCC supports several variants with WiFi or BLE connectivity. Which one you need depends on how complicated you want your setup to be. Following sections provide details for each, below are the pictures of the CPU (the Xiao module).
 ![Xiao](image/XIAO.jpg)
 
 
@@ -16,8 +16,4 @@ This is a more complicated setup. You may still use a phone or a tablet as a Thr
 
 
 ## Flexible (NRF)
-This is the most complicated option and it provides the most versatility. It may work with or without a command station, it doesn't need WiFi. But it does require a hardware Throttle. How to build one is explained on the RCC Throttle page (_still under construction_). I’m using this setup to control my live steam locomotives. I run them at home and I also meet with my fellow live steamers at various events. This option allows me to do both without any changes or complications.
-
-
-
-
+This is the most complicated option and it offers the most versatility. It may work with or without a command station, it doesn't need WiFi. But it does require a hardware Throttle. How to build one is explained on the RCC Throttle page (_still under construction_). I’m using this setup to control my live steam locomotives. I run them at home and I also meet with my fellow live steamers at various events. This option allows me to do both without any changes or complications.
