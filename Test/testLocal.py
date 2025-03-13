@@ -71,33 +71,33 @@ def motor_blinker(s, direction):
 
 def test_motor_forward(s):
     test_name = 'Test Motor forward'
-    print('\tIs Green light fading in/out? (Y/n)')
+    print('\tIs White light fading in/out? (Y/n)')
     yn = motor_blinker(s, 1)
     return (yn.strip().lower() != 'n', test_name)
 
 def test_motor_backward(s):
     test_name = 'Test Motor backward'
-    print('\tIs White light fading in/out? (Y/n)')
+    print('\tIs Green light fading in/out? (Y/n)')
     yn = motor_blinker(s, 2)
     return (yn.strip().lower() != 'n', test_name)
 
 def test_motor_bemf(s):
     test_name = 'Test Motor BEMF'
-    writeSerial(s, 'RB')
+    writeSerial(s, 'CB')
     data = readSerialFloat(s)
     print(f'\tHas to be non-zero value: {data}')
     return (data > 0, test_name)
 
 def test_voltage(s):
     test_name = 'Test Power Meter Voltage'
-    writeSerial(s, 'RV')
+    writeSerial(s, 'CV')
     data = readSerialFloat(s)
     print(f'\tHas to be higher than 10: {data}V')
     return (data > 10, test_name)
 
 def test_current(s):
     test_name = 'Test Power Meter Current'
-    writeSerial(s, 'RC')
+    writeSerial(s, 'CC')
     data = readSerialFloat(s)
     print(f'\tHas to be non-zero value: {data}mA')
     return (data > 0, test_name)
