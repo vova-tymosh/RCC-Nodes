@@ -11,8 +11,6 @@
 #include "Timer.h"
 
 
-
-
 Storage storage;
 Settings settings;
 PinExt yellow(2);
@@ -42,23 +40,10 @@ public:
     {
         motor.apply(direction, throttle);
     }
-};
-TestLoco loco;
 
-
-/*
-bool on_radio = false;
-void (*reboot)(void) = 0;
-
-class Cli : public RccCli
-{
-public:
-    void onExe(uint8_t code)
+    void onCommand(uint8_t code, float value)
     {
         switch (code) {
-        case '0':
-            reboot();
-            break;
         case 'V':
             Serial.println(powerMeter.readVoltage());
             break;
@@ -68,36 +53,10 @@ public:
         case 'B':
             Serial.println(motor.readBemf());
             break;
-        case 'R':
-            Serial.println("Start radio");
-            on_radio = true;
-            // loco.setup();
-            break;
         }
     }
-
-    void onSpeed(uint8_t direction, uint8_t throttle, bool is_dcc)
-    {
-        Serial.println("onThrottle: " + String(direction) + "/" + String(throttle));
-        motor.apply(direction, throttle);
-
-        // if (!is_dcc)
-        //     loco.onThrottle(direction, throttle);
-        // Serial.println("onSpeed " + String(direction) + "/" + String(throttle));
-    }
-
-    void onFunction(uint8_t code, bool value, bool is_dcc)
-    {
-        if (code == 0)
-            yellow.apply(value);
-        if (code == 1)
-            blue.apply(value);
-        // if (!is_dcc)
-        //     loco.onFunction(code, value);
-        // Serial.println("onFunction " + String(code) + "/" + String(value));
-    }
 };
-Cli */
+TestLoco loco;
 
 void setup()
 {
@@ -107,7 +66,6 @@ void setup()
     storage.begin();
     settings.checkDefaults(defaultSettings, defaultSettingsSize);
 
-
     motor.setup();
     yellow.begin();
     blue.begin();
@@ -115,15 +73,12 @@ void setup()
     timer.start(100);
     blinker.restart();
     
-    // storage.setup(VERSION);
     loco.setup();
-    // loco.debug = true;
 }
 
 void loop()
 {
     loco.loop();
-
 
     if (blinker.hasFired()) {
         static bool flip = false;
@@ -135,8 +90,5 @@ void loop()
             digitalWrite(LED_BUILTIN, LOW);
         }
     }
-
-    // if (on_radio)
-    //     loco.loop();
 }
 
