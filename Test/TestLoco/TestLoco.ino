@@ -109,11 +109,6 @@ void setup()
     loco.setup();
 }
 
-
-// #if defined(CONFIG_IDF_TARGET_ESP32C3)
-//     #error "@@@@@@@@@@@@@Compiling for ESP32-C3"
-// #endif
-
 void loop()
 {
     loco.loop();
