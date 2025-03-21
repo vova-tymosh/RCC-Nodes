@@ -3,7 +3,7 @@
  *
  *
  */
-#define RCC_NO_STATION
+// #define RCC_NO_STATION
 #include "Peripheral.h"
 #include "Motherboard.h"
 #include "RCCLoco.h"
@@ -13,6 +13,8 @@
 #include "Audio.h"
 #include "audio_data2.h"
 
+// defined(CONFIG_IDF_TARGET_ESP32C3)
+// defined(CONFIG_IDF_TARGET_ESP32C6)
 
 Storage storage;
 PinExt yellow(2);
@@ -48,9 +50,9 @@ class TestLoco : public RCCLoco
 public:
     using RCCLoco::RCCLoco;
 
-    void onFunction(char code, bool value)
+    void onFunction(uint8_t code, bool value)
     {
-        // Serial.println("onFunction: " + String((int)code) + "/" + String(value));
+        Serial.println("onFunction: " + String(code) + "/" + String(value));
         if (code == 0)
             yellow.apply(value);
         if (code == 1)
@@ -59,6 +61,7 @@ public:
 
     void onThrottle(uint8_t direction, uint8_t throttle)
     {
+        Serial.println("onThrottle: " + String(direction) + "/" + String(throttle));
         motor.apply(direction, throttle);
     }
 
@@ -103,9 +106,10 @@ void setup()
     blue.begin();
     powerMeter.setup();
     timer.start(100);
-    blinker.restart();
+    blinker.start();
     
     audio.begin();
+    loco.debugLevel = 10;
     loco.setup();
 }
 
@@ -119,7 +123,6 @@ void loop()
         flip = !flip;
         if (flip) {
             // digitalWrite(LED_BUILTIN, HIGH);
-            // Serial.println("Loco:");
         } else {
             // digitalWrite(LED_BUILTIN, LOW);
         }
