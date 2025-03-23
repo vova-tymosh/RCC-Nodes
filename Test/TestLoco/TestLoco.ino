@@ -17,6 +17,7 @@
 // defined(CONFIG_IDF_TARGET_ESP32C6)
 
 Storage storage;
+Settings settings;
 PinExt yellow(2);
 Pin blue(D0);
 PowerMeter powerMeter;
@@ -99,7 +100,7 @@ void setup()
     delay(250);
 
     storage.begin();
-    settings.begin();
+    settings.defaults(settingsKeys, settingsValues, settingsSize);
 
     motor.setup();
     yellow.begin();
