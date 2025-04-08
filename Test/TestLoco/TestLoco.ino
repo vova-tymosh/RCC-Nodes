@@ -84,6 +84,9 @@ public:
         case 'Q':
             audio.play("sound", 2);
             break;
+        case 'L':
+            audio.cycle = true;
+            break;
         case 'W':
             writeAllAudio(audio_data, sizeof(audio_data));
             break;
