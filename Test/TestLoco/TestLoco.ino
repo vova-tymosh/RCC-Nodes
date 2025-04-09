@@ -24,6 +24,7 @@ PowerMeter powerMeter;
 Motor motor(PIN_MOTOR_BCK, PIN_MOTOR_FWD);
 Timer timer;
 Timer blinker(1000);
+Timer update(1000);
 
 Audio audio;
 
@@ -121,6 +122,10 @@ void loop()
 {
     loco.loop();
     audio.loop();
+
+    if (update.hasFired()) {
+        loco.state.battery = powerMeter.readBattery();
+    }
 
     if (blinker.hasFired()) {
         static bool flip = false;
