@@ -70,12 +70,6 @@ public:
     void onCommand(uint8_t code, float value)
     {
         switch (code) {
-        case 'V':
-            Serial.println(powerMeter.readVoltage());
-            break;
-        case 'C':
-            Serial.println(powerMeter.readCurrent());
-            break;
         case 'B':
             Serial.println(motor.readBemf());
             break;
@@ -125,6 +119,7 @@ void loop()
 
     if (update.hasFired()) {
         loco.state.battery = powerMeter.readBattery();
+        loco.state.current = powerMeter.readCurrent();
     }
 
     if (blinker.hasFired()) {
