@@ -1,5 +1,5 @@
 import time
-from rccTest import *
+from infra import *
 
     
 def test_f0_on(s):
