@@ -1,6 +1,8 @@
+#!/usr/bin/python3
+
 import time
 import logging
-from testLocal import *
+from test_local import *
 
 
 # tests = [test_motor_bemf, ]
