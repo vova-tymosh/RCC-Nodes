@@ -139,7 +139,7 @@ void loop()
     if (wake) {
         powerOn = true;
         ui.powerOn();
-        screensaver.restart();
+        screensaver.start();
         update = true;
     } else if (screensaver.hasFiredOnce()) {
         powerOn = false;

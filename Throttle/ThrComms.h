@@ -209,7 +209,7 @@ public:
         this->node = node;
         wireless->setup(node);
         command.type = PACKET_THR_AUTH;
-        timer.restart();
+        timer.start();
         alive_period.start(1000);
     }
 
