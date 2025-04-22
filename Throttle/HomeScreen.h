@@ -64,7 +64,7 @@ private:
     {
         static const char fmt1[] = "Loco:%4s   %3d%%";
         static const char fmt2[] = "T:%-3d R:%-3d S:%-3d D:%c";
-        static const char fmt3[] = "%2d%cC    %2dpsi    %2d%%";
+        static const char fmt3[] = "%2d%cC    %2dpsi    ";
         static const char fmt4[] = "ODO:                     ";
         char line[ui.width + 1];
 
@@ -77,7 +77,7 @@ private:
         sprintf(line, fmt2, controls.throttle, loco.throttle, loco.speed,
                 renderDirection());
         ui.display.println(line);
-        sprintf(line, fmt3, loco.temperature, 0xF7, loco.psi, loco.water);
+        sprintf(line, fmt3, loco.temperature, 0xF7, loco.psi);
         ui.display.println(line);
         sprintf(line, fmt4);
         renderDisatnce(line + 4, loco.distance);
