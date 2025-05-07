@@ -5,10 +5,8 @@
 #include "States.h"
 #include "Timer.h"
 #include "UI.h"
-// #include "ThrComms.h"
 
 extern UserInterface ui;
-// extern ThrComms comms;
 
 class HomeScreen : public BaseState
 {
@@ -68,29 +66,16 @@ private:
         static const char fmt4[] = "ODO:                     ";
         char line[ui.width + 1];
 
-            //TODO
-            Serial.println("---------------");
-
         ui.startScreen();
-        unsigned int lost = 0 + controls.lost;
-        if (lost > 100)
-            lost = 100;
-        //TODO
-        sprintf(line, fmt1, keypad.transport->getSelectedName(), lost);
+        sprintf(line, fmt1, keypad.getSelectedName(), keypad.getConnSuccessRate());
         ui.display.println(line);
         sprintf(line, fmt2, controls.throttle, keypad.state.throttle, keypad.state.speed, renderDirection());
-            //TODO
-            Serial.println(line);
         ui.display.println(line);
         sprintf(line, fmt3, keypad.state.temperature, 0xF7, keypad.state.psi);
-            //TODO
-            Serial.println(line);
         ui.display.println(line);
         sprintf(line, fmt4);
         renderDisatnce(line + 4, keypad.state.distance);
         renderTime(line + 16);
-            //TODO
-            Serial.println(line);
         ui.display.println(line);
 
         renderBattery();
@@ -129,7 +114,8 @@ public:
                 controls.direction = 0;
             else
                 controls.direction = 1;
-            // comms.send('d', (float)controls.direction);
+            keypad.setDirection(controls.direction);
+            keypad.askHeartbeat();
         }
         if (setting.bigui)
             renderBig();
