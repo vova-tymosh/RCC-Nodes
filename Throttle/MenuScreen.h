@@ -2,11 +2,9 @@
 
 #include "States.h"
 #include "Storage.h"
-// #include "ThrComms.h"
 #include "UI.h"
 
 extern UserInterface ui;
-// extern ThrComms comms;
 extern Storage storage;
 
 class MenuItem
@@ -44,7 +42,8 @@ public:
             state = 0;
         else
             state = 1;
-        // comms.sendFunction(index, state);
+        keypad.setFunction(index, state);
+        keypad.askHeartbeat();
     }
 };
 
@@ -112,13 +111,12 @@ public:
     void render(char *line, size_t size)
     {
         static const char fmt1[] = "Loco             %-4s";
-        // snprintf(line, size, fmt1, comms.getSelectedName());
+        snprintf(line, size, fmt1, keypad.getSelectedName());
     }
 
     void toggle()
     {
-        // comms.cycleSelected();
-        // comms.subsribe();
+        keypad.cycleSelected();
     }
 };
 

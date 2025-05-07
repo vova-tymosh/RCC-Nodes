@@ -3,11 +3,7 @@
 #include "LocoState.h"
 #include "MenuScreen.h"
 #include "Rotary.h"
-// #include "Storage.h"
-// #include "ThrComms.h"
-// #include "Timer.h"
 #include "UI.h"
-// #include "Wireless.h"
 #include <Keypad.h>
 
 #include "RCCKeypad.h"
@@ -27,12 +23,6 @@ byte row_pins[ROWS] = {8, 9, 10};
 byte col_pins[COLS] = {2, 6, 7};
 Keypad keys(makeKeymap(keyMap), row_pins, col_pins, ROWS, COLS);
 
-// // *** Comms
-// const int node = 4;
-// // Wireless wireless;
-// ThrComms comms;
-// struct LocoState loco;
-
 // *** Screens and UI
 UserInterface ui;
 HomeScreen home_screen;
@@ -46,7 +36,6 @@ Timer rotary_timer;
 Timer vsync;
 Rotary rotary;
 Battery battery;
-// Storage storage;
 struct Controls controls;
 struct Setting setting;
 Storage storage;
@@ -58,7 +47,6 @@ TestKeypad keypad;
 
 void toggleFunction(int index)
 {
-    // comms.sendFunction(index, ((loco.bitstate & (1 << index)) ? 0 : 1));
     keypad.setFunction(index, ((keypad.state.bitstate & (1 << index)) ? 0 : 1));
 }
 
@@ -100,11 +88,7 @@ void setup()
 
     Serial.println("Settings: " + String(setting.bitstate));
 
-    // if (setting.local)
-    //     comms.setup(0);
-    // else
-    //     comms.setup(node);
-    keypad.debugLevel = 1;
+    keypad.debugLevel = 10;
     keypad.begin();
 
 
@@ -116,8 +100,7 @@ void setup()
     state = &home_screen;
     state->handle(0);
     rotary_timer.start(100);
-    // vsync.start(250);
-    vsync.start(3000);
+    vsync.start(250);
 
     screensaver.start(3 * 60 * 1000);
 }
@@ -128,11 +111,11 @@ void loop()
     bool update = false;
     bool wake = false;
 
-    // if (comms.loop()) {
-    //     update = true;
-    //     controls.direction = loco.direction;
-    // }
     keypad.loop();
+    if (keypad.update) {
+        update = true;
+        controls.direction = keypad.state.direction;
+    }
 
     char key = keys.getKey();
     if (key) {
@@ -148,6 +131,7 @@ void loop()
         if (oldThrottle != controls.throttle) {
             oldThrottle = controls.throttle;
             keypad.setThrottle(controls.throttle);
+            keypad.askHeartbeat();
             update = true;
         }
     }
