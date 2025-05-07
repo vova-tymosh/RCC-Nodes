@@ -3,30 +3,35 @@
 #include "LocoState.h"
 #include "MenuScreen.h"
 #include "Rotary.h"
-#include "Storage.h"
-#include "ThrComms.h"
-#include "Timer.h"
+// #include "Storage.h"
+// #include "ThrComms.h"
+// #include "Timer.h"
 #include "UI.h"
 // #include "Wireless.h"
 #include <Keypad.h>
 
+#include "RCCKeypad.h"
+#include "Storage.h"
+#include "Settings.h"
+#include "Timer.h"
+
 // *** Keyboard
 const byte ROWS = 4;
 const byte COLS = 3;
-const char keys[ROWS][COLS] = {
+const char keyMap[ROWS][COLS] = {
     {'h', 'm', 'd'},
     {'1', '2', '3'},
     {'4', '5', '6'},
 };
 byte row_pins[ROWS] = {8, 9, 10};
 byte col_pins[COLS] = {2, 6, 7};
-Keypad keypad(makeKeymap(keys), row_pins, col_pins, ROWS, COLS);
+Keypad keys(makeKeymap(keyMap), row_pins, col_pins, ROWS, COLS);
 
-// *** Comms
-const int node = 4;
-// Wireless wireless;
-ThrComms comms;
-struct LocoState loco;
+// // *** Comms
+// const int node = 4;
+// // Wireless wireless;
+// ThrComms comms;
+// struct LocoState loco;
 
 // *** Screens and UI
 UserInterface ui;
@@ -41,13 +46,20 @@ Timer rotary_timer;
 Timer vsync;
 Rotary rotary;
 Battery battery;
-Storage storage;
+// Storage storage;
 struct Controls controls;
 struct Setting setting;
+Storage storage;
+Settings settings;
+
+TestKeypad keypad;
+
+
 
 void toggleFunction(int index)
 {
-    comms.sendFunction(index, ((loco.bitstate & (1 << index)) ? 0 : 1));
+    // comms.sendFunction(index, ((loco.bitstate & (1 << index)) ? 0 : 1));
+    keypad.setFunction(index, ((keypad.state.bitstate & (1 << index)) ? 0 : 1));
 }
 
 void handleHotKey(char key)
@@ -83,14 +95,19 @@ void setup()
     storage.begin();
 
     // setting.bitstate = storage.restore();
-    storage.readOrCreate("setting", &setting.bitstate, sizeof(setting.bitstate));
+    // storage.readOrCreate("setting", &setting.bitstate, sizeof(setting.bitstate));
+    settings.defaults(keypadKeys, keypadValues, keypadKeySize);
 
     Serial.println("Settings: " + String(setting.bitstate));
 
-    if (setting.local)
-        comms.setup(0);
-    else
-        comms.setup(node);
+    // if (setting.local)
+    //     comms.setup(0);
+    // else
+    //     comms.setup(node);
+    keypad.debugLevel = 1;
+    keypad.begin();
+
+
     battery.setup();
     rotary.setup();
     ui.setup();
@@ -99,7 +116,9 @@ void setup()
     state = &home_screen;
     state->handle(0);
     rotary_timer.start(100);
-    vsync.start(250);
+    // vsync.start(250);
+    vsync.start(3000);
+
     screensaver.start(3 * 60 * 1000);
 }
 
@@ -109,12 +128,13 @@ void loop()
     bool update = false;
     bool wake = false;
 
-    if (comms.loop()) {
-        update = true;
-        controls.direction = loco.direction;
-    }
+    // if (comms.loop()) {
+    //     update = true;
+    //     controls.direction = loco.direction;
+    // }
+    keypad.loop();
 
-    char key = keypad.getKey();
+    char key = keys.getKey();
     if (key) {
         Serial.println("Press " + String(key));
         handleHotKey(key);
@@ -127,7 +147,7 @@ void loop()
         controls.throttle = rotary.read();
         if (oldThrottle != controls.throttle) {
             oldThrottle = controls.throttle;
-            comms.send('t', (float)controls.throttle);
+            keypad.setThrottle(controls.throttle);
             update = true;
         }
     }
@@ -147,7 +167,7 @@ void loop()
     }
 
     if (powerOn && update) {
-        controls.lost = comms.getLostRate();
+        // controls.lost = comms.getLostRate();
 
         State newState = state->handle(key);
         if (newState) {

@@ -2,11 +2,11 @@
 
 #include "States.h"
 #include "Storage.h"
-#include "ThrComms.h"
+// #include "ThrComms.h"
 #include "UI.h"
 
 extern UserInterface ui;
-extern ThrComms comms;
+// extern ThrComms comms;
 extern Storage storage;
 
 class MenuItem
@@ -31,7 +31,7 @@ public:
     void render(char *line, size_t size)
     {
         static const char fmt1[] = "%-18s%s";
-        if (loco.bitstate & (1 << index))
+        if (keypad.state.bitstate & (1 << index))
             snprintf(line, size, fmt1, name, "ON");
         else
             snprintf(line, size, fmt1, name, "OFF");
@@ -39,12 +39,12 @@ public:
 
     void toggle()
     {
-        int state = (loco.bitstate & (1 << index));
+        int state = (keypad.state.bitstate & (1 << index));
         if (state)
             state = 0;
         else
             state = 1;
-        comms.sendFunction(index, state);
+        // comms.sendFunction(index, state);
     }
 };
 
@@ -112,13 +112,13 @@ public:
     void render(char *line, size_t size)
     {
         static const char fmt1[] = "Loco             %-4s";
-        snprintf(line, size, fmt1, comms.getSelectedName());
+        // snprintf(line, size, fmt1, comms.getSelectedName());
     }
 
     void toggle()
     {
-        comms.cycleSelected();
-        comms.subsribe();
+        // comms.cycleSelected();
+        // comms.subsribe();
     }
 };
 
