@@ -5,10 +5,10 @@
 #include "States.h"
 #include "Timer.h"
 #include "UI.h"
-#include "ThrComms.h"
+// #include "ThrComms.h"
 
 extern UserInterface ui;
-extern ThrComms comms;
+// extern ThrComms comms;
 
 class HomeScreen : public BaseState
 {
@@ -17,7 +17,7 @@ private:
 
     char renderDirection()
     {
-        if (loco.direction == 0)
+        if (keypad.state.direction == 0)
             return 'R';
         else
             return 'F';
@@ -68,20 +68,29 @@ private:
         static const char fmt4[] = "ODO:                     ";
         char line[ui.width + 1];
 
+            //TODO
+            Serial.println("---------------");
+
         ui.startScreen();
-        unsigned int lost = loco.lost + controls.lost;
+        unsigned int lost = 0 + controls.lost;
         if (lost > 100)
             lost = 100;
-        sprintf(line, fmt1, comms.getSelectedName(), lost);
+        //TODO
+        sprintf(line, fmt1, keypad.transport->getSelectedName(), lost);
         ui.display.println(line);
-        sprintf(line, fmt2, controls.throttle, loco.throttle, loco.speed,
-                renderDirection());
+        sprintf(line, fmt2, controls.throttle, keypad.state.throttle, keypad.state.speed, renderDirection());
+            //TODO
+            Serial.println(line);
         ui.display.println(line);
-        sprintf(line, fmt3, loco.temperature, 0xF7, loco.psi);
+        sprintf(line, fmt3, keypad.state.temperature, 0xF7, keypad.state.psi);
+            //TODO
+            Serial.println(line);
         ui.display.println(line);
         sprintf(line, fmt4);
-        renderDisatnce(line + 4, loco.distance);
+        renderDisatnce(line + 4, keypad.state.distance);
         renderTime(line + 16);
+            //TODO
+            Serial.println(line);
         ui.display.println(line);
 
         renderBattery();
@@ -96,11 +105,11 @@ private:
 
         ui.startScreen();
         ui.display.setTextSize(2);
-        char alive = comms.isAlive() ? 0x1F : ' ';
-        sprintf(line, fmt1, controls.throttle, renderDirection(), alive);
+        // char alive = comms.isAlive() ? 0x1F : ' ';
+        // sprintf(line, fmt1, controls.throttle, renderDirection(), alive);
         ui.display.println(line);
-        sprintf(line, fmt2, loco.temperature, 0xF7,
-                (float)loco.distance / 1000);
+        sprintf(line, fmt2, keypad.state.temperature, 0xF7,
+                (float)keypad.state.distance / 1000);
         ui.display.println(line);
 
         renderBattery();
@@ -120,7 +129,7 @@ public:
                 controls.direction = 0;
             else
                 controls.direction = 1;
-            comms.send('d', (float)controls.direction);
+            // comms.send('d', (float)controls.direction);
         }
         if (setting.bigui)
             renderBig();
