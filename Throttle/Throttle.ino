@@ -37,17 +37,15 @@ Timer vsync;
 Rotary rotary;
 Battery battery;
 struct Controls controls;
-struct Setting setting;
 Storage storage;
 Settings settings;
 
-TestKeypad keypad;
-
+Pad pad;
 
 
 void toggleFunction(int index)
 {
-    keypad.setFunction(index, ((keypad.state.bitstate & (1 << index)) ? 0 : 1));
+    pad.setFunction(index, ((pad.state.bitstate & (1 << index)) ? 0 : 1));
 }
 
 void handleHotKey(char key)
@@ -77,20 +75,20 @@ void setupSerial()
     Serial.println("Started");
 }
 
+const char *padKeys[] = {"loconame", "locoaddr", "BigFont"};
+const char *padValues[] = {"RCC_Keypad", "1", "0"};
+const int padKeySize = sizeof(padKeys) / sizeof(padKeys[0]);
+
+
 void setup()
 {
     setupSerial();
     storage.begin();
 
-    // setting.bitstate = storage.restore();
-    // storage.readOrCreate("setting", &setting.bitstate, sizeof(setting.bitstate));
-    settings.defaults(keypadKeys, keypadValues, keypadKeySize);
+    settings.begin(padKeys, padValues, padKeySize);
 
-    Serial.println("Settings: " + String(setting.bitstate));
-
-    keypad.debugLevel = 10;
-    keypad.begin();
-
+    pad.debugLevel = 10;
+    pad.begin();
 
     battery.setup();
     rotary.setup();
@@ -111,10 +109,10 @@ void loop()
     bool update = false;
     bool wake = false;
 
-    keypad.loop();
-    if (keypad.update) {
+    pad.loop();
+    if (pad.update) {
         update = true;
-        controls.direction = keypad.state.direction;
+        controls.direction = pad.state.direction;
     }
 
     char key = keys.getKey();
@@ -130,8 +128,8 @@ void loop()
         controls.throttle = rotary.read();
         if (oldThrottle != controls.throttle) {
             oldThrottle = controls.throttle;
-            keypad.setThrottle(controls.throttle);
-            keypad.askHeartbeat();
+            pad.setThrottle(controls.throttle);
+            // pad.askHeartbeat();
             update = true;
         }
     }
@@ -151,8 +149,6 @@ void loop()
     }
 
     if (powerOn && update) {
-        // controls.lost = comms.getLostRate();
-
         State newState = state->handle(key);
         if (newState) {
             state = states[newState];

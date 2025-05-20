@@ -29,7 +29,7 @@ public:
     void render(char *line, size_t size)
     {
         static const char fmt1[] = "%-18s%s";
-        if (keypad.state.bitstate & (1 << index))
+        if (pad.state.bitstate & (1 << index))
             snprintf(line, size, fmt1, name, "ON");
         else
             snprintf(line, size, fmt1, name, "OFF");
@@ -37,69 +37,72 @@ public:
 
     void toggle()
     {
-        int state = (keypad.state.bitstate & (1 << index));
+        int state = (pad.state.bitstate & (1 << index));
         if (state)
             state = 0;
         else
             state = 1;
-        keypad.setFunction(index, state);
-        keypad.askHeartbeat();
+        pad.setFunction(index, state);
+        pad.askHeartbeat();
     }
 };
 
-class MenuItemToggleConfig : public MenuItemToggle
+class MenuItemToggleConfig : public MenuItem
 {
     int savedState;
 
 public:
-    MenuItemToggleConfig(const char *name, const int index)
-        : MenuItemToggle(name, index)
+    MenuItemToggleConfig(const char *name)
+        : MenuItem(name, 0)
     {
-    }
-
-    virtual const char *getName(String &title)
-    {
-        return name;
     }
 
     void render(char *line, size_t size)
     {
         static const char fmt1[] = "%-18s%s";
-        String title;
-        if (setting.bitstate & (1 << index))
-            snprintf(line, size, fmt1, getName(title), "ON");
+        if (settings.getCachedInt(name))
+            snprintf(line, size, fmt1, name, "ON");
         else
-            snprintf(line, size, fmt1, getName(title), "OFF");
+            snprintf(line, size, fmt1, name, "OFF");
     }
 
     void toggle()
     {
-        setting.bitstate ^= (1 << index);
-        storage.write("setting", &setting.bitstate, sizeof(setting.bitstate));
+        int c = settings.getCachedInt(name);
+        settings.put(name, String(c ? 0 : 1));
     }
 };
 
-class MenuItemToggleLocal : public MenuItemToggleConfig
+class MenuItemToggleLocal : public MenuItem
 {
-    int savedState;
+    int saved;
+    const char* settingName = "locoaddr";
+    const int node = 1;
 
 public:
-    MenuItemToggleLocal(const char *name, const int index)
-        : MenuItemToggleConfig(name, index)
+    MenuItemToggleLocal()
+        : MenuItem("", 0)
     {
     }
 
     void setup()
     {
-        savedState = setting.bitstate & (1 << index);
+        saved = settings.getCachedInt(settingName);
     }
 
-    const char *getName(String &title)
+    void render(char *line, size_t size)
     {
-        title += String(name);
-        if (savedState != (setting.bitstate & (1 << index)))
-            title += String("(bootme)");
-        return title.c_str();
+        int c = settings.getCachedInt(settingName);
+        if (c != saved)
+            snprintf(line, size, "Local(bootme)     %s", c ? "OFF" : "ON");
+        else
+            snprintf(line, size, "Loco              %s", c ? "OFF" : "ON");
+    }
+
+    void toggle()
+    {
+        int c = settings.getCachedInt(settingName);
+        settings.put(settingName, String(c ? 0 : node));
     }
 };
 
@@ -111,12 +114,12 @@ public:
     void render(char *line, size_t size)
     {
         static const char fmt1[] = "Loco             %-4s";
-        snprintf(line, size, fmt1, keypad.getSelectedName());
+        snprintf(line, size, fmt1, pad.getSelectedName());
     }
 
     void toggle()
     {
-        keypad.cycleSelected();
+        pad.cycleSelected();
     }
 };
 
@@ -125,8 +128,8 @@ auto mi1 = MenuItemToggle("Lights", 0);
 auto mi2 = MenuItemToggle("Bell", 1);
 auto mi3 = MenuItemToggle("Slow", 28);
 auto mi4 = MenuItemToggle("Pid", 29);
-auto mi5 = MenuItemToggleConfig("Big font", 1);
-auto mi6 = MenuItemToggleLocal("Local", 0);
+auto mi5 = MenuItemToggleConfig("BigFont");
+auto mi6 = MenuItemToggleLocal();
 MenuItem *menuItem[] = {&mi0, &mi1, &mi2, &mi3, &mi4, &mi5, &mi6};
 
 class MenuScreen : public BaseState
