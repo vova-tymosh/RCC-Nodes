@@ -10,7 +10,7 @@ private:
     SimpleKalmanFilter filter;
 
 public:
-    Rotary() : filter(1, 1, 0.2) {};
+    Rotary() : filter(50, 50, 0.3) {};
 
     void setup()
     {

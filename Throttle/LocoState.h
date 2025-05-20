@@ -2,8 +2,6 @@
 #include "RCCState.h"
 #include "RCCKeypad.h"
 
-// extern struct LocoState loco;
-
 struct Controls {
     uint16_t throttle;
     uint16_t direction;
@@ -12,19 +10,7 @@ struct Controls {
 };
 extern struct Controls controls;
 
-struct Setting {
-    union {
-        uint16_t bitstate;
-        struct {
-            uint16_t local    : 1;
-            uint16_t bigui    : 1;
-            uint16_t reserved : 14;
-        };
-    };
-};
-extern struct Setting setting;
-
-class TestKeypad : public RCCKeypad 
+class Pad : public RCCKeypad 
 {
 public:
 
@@ -65,5 +51,5 @@ public:
     }
 };
 
-extern TestKeypad keypad;
+extern Pad pad;
 

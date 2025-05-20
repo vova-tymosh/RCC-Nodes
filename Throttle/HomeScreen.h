@@ -15,7 +15,7 @@ private:
 
     char renderDirection()
     {
-        if (keypad.state.direction == 0)
+        if (pad.state.direction == 0)
             return 'R';
         else
             return 'F';
@@ -67,14 +67,14 @@ private:
         char line[ui.width + 1];
 
         ui.startScreen();
-        sprintf(line, fmt1, keypad.getSelectedName(), keypad.getConnSuccessRate());
+        sprintf(line, fmt1, pad.getSelectedName(), pad.getConnSuccessRate());
         ui.display.println(line);
-        sprintf(line, fmt2, controls.throttle, keypad.state.throttle, keypad.state.speed, renderDirection());
+        sprintf(line, fmt2, controls.throttle, pad.state.throttle, pad.state.speed, renderDirection());
         ui.display.println(line);
-        sprintf(line, fmt3, keypad.state.temperature, 0xF7, keypad.state.psi);
+        sprintf(line, fmt3, pad.state.temperature, 0xF7, pad.state.psi);
         ui.display.println(line);
         sprintf(line, fmt4);
-        renderDisatnce(line + 4, keypad.state.distance);
+        renderDisatnce(line + 4, pad.state.distance);
         renderTime(line + 16);
         ui.display.println(line);
 
@@ -90,11 +90,11 @@ private:
 
         ui.startScreen();
         ui.display.setTextSize(2);
-        // char alive = comms.isAlive() ? 0x1F : ' ';
-        // sprintf(line, fmt1, controls.throttle, renderDirection(), alive);
+        char alive = ' ';//comms.isAlive() ? 0x1F : ' ';
+        sprintf(line, fmt1, controls.throttle, renderDirection(), alive);
         ui.display.println(line);
-        sprintf(line, fmt2, keypad.state.temperature, 0xF7,
-                (float)keypad.state.distance / 1000);
+        sprintf(line, fmt2, pad.state.temperature, 0xF7,
+                (float)pad.state.distance / 1000);
         ui.display.println(line);
 
         renderBattery();
@@ -114,10 +114,10 @@ public:
                 controls.direction = 0;
             else
                 controls.direction = 1;
-            keypad.setDirection(controls.direction);
-            keypad.askHeartbeat();
+            pad.setDirection(controls.direction);
+            pad.askHeartbeat();
         }
-        if (setting.bigui)
+        if (settings.getCachedInt("BigFont"))
             renderBig();
         else
             renderSmall();
