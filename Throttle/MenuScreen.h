@@ -21,10 +21,28 @@ public:
     virtual void toggle() = 0;
 };
 
-class MenuItemToggle : public MenuItem
+class MenuItemLocoName : public MenuItem
 {
 public:
-    MenuItemToggle(const char *name, const int index) : MenuItem(name, index) {}
+    MenuItemLocoName() : MenuItem(NULL, 0) {}
+
+    void render(char *line, size_t size)
+    {
+        static const char fmt1[] = "Loco             %-4s";
+        snprintf(line, size, fmt1, pad.getSelectedName());
+    }
+
+    void toggle()
+    {
+        pad.cycleSelected();
+    }
+};
+
+class MenuItemFunction : public MenuItem
+{
+public:
+    MenuItemFunction(const char *name, const int index)
+        : MenuItem(name, index) {}
 
     void render(char *line, size_t size)
     {
@@ -37,22 +55,39 @@ public:
 
     void toggle()
     {
-        int state = (pad.state.bitstate & (1 << index));
-        if (state)
-            state = 0;
-        else
-            state = 1;
+        int state = (pad.state.bitstate & (1 << index)) ? 0 : 1;
         pad.setFunction(index, state);
         pad.askHeartbeat();
     }
 };
 
-class MenuItemToggleConfig : public MenuItem
+class MenuItemPump : public MenuItem
+{
+public:
+    MenuItemPump() : MenuItem("pump", 0) {}
+
+    void render(char *line, size_t size)
+    {
+        snprintf(line, size, "Pump              %d", controls.pump);
+    }
+
+    void toggle()
+    {
+        if (controls.pump < 100)
+            controls.pump += 10;
+        else
+            controls.pump = 0;
+        pad.setValue("pump", String(controls.pump).c_str());
+    }
+};
+
+
+class MenuItemSetting : public MenuItem
 {
     int savedState;
 
 public:
-    MenuItemToggleConfig(const char *name)
+    MenuItemSetting(const char *name)
         : MenuItem(name, 0)
     {
     }
@@ -73,17 +108,15 @@ public:
     }
 };
 
-class MenuItemToggleLocal : public MenuItem
+class MenuItemLocal : public MenuItem
 {
     int saved;
     const char* settingName = "locoaddr";
     const int node = 1;
 
 public:
-    MenuItemToggleLocal()
-        : MenuItem("", 0)
-    {
-    }
+    MenuItemLocal()
+        : MenuItem("", 0) {}
 
     void setup()
     {
@@ -96,7 +129,7 @@ public:
         if (c != saved)
             snprintf(line, size, "Local(bootme)     %s", c ? "OFF" : "ON");
         else
-            snprintf(line, size, "Loco              %s", c ? "OFF" : "ON");
+            snprintf(line, size, "Local             %s", c ? "OFF" : "ON");
     }
 
     void toggle()
@@ -106,31 +139,17 @@ public:
     }
 };
 
-class MenuItemLoco : public MenuItem
-{
-public:
-    MenuItemLoco() : MenuItem(NULL, 0) {}
 
-    void render(char *line, size_t size)
-    {
-        static const char fmt1[] = "Loco             %-4s";
-        snprintf(line, size, fmt1, pad.getSelectedName());
-    }
 
-    void toggle()
-    {
-        pad.cycleSelected();
-    }
-};
-
-auto mi0 = MenuItemLoco();
-auto mi1 = MenuItemToggle("Lights", 0);
-auto mi2 = MenuItemToggle("Bell", 1);
-auto mi3 = MenuItemToggle("Slow", 28);
-auto mi4 = MenuItemToggle("Pid", 29);
-auto mi5 = MenuItemToggleConfig("BigFont");
-auto mi6 = MenuItemToggleLocal();
-MenuItem *menuItem[] = {&mi0, &mi1, &mi2, &mi3, &mi4, &mi5, &mi6};
+auto mi0 = MenuItemLocoName();
+auto mi1 = MenuItemFunction("Lights", 0);
+auto mi2 = MenuItemFunction("Bell", 1);
+auto mi3 = MenuItemFunction("Slow", 28);
+auto mi4 = MenuItemFunction("Pid", 29);
+auto mi5 = MenuItemPump();
+auto mi6 = MenuItemSetting("BigFont");
+auto mi7 = MenuItemLocal();
+MenuItem *menuItem[] = {&mi0, &mi1, &mi2, &mi3, &mi4, &mi5, &mi6, &mi7};
 
 class MenuScreen : public BaseState
 {
@@ -143,8 +162,13 @@ public:
 
     State handle(char key)
     {
-        if (key == 'h')
+        static bool enter = true;
+        if (key == 'h') {
+            enter = true;
             return STATE_HOME;
+        }
+        if (enter)
+            pad.getValue("pump");
 
         static int selected = 0;
         if (key == 'd')
@@ -166,6 +190,7 @@ public:
             ui.display.println(line);
         }
         ui.display.display();
+        enter = false;
         return STATE_NONE;
     }
 };

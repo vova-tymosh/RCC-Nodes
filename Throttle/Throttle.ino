@@ -1,3 +1,4 @@
+#define NO_DEBUG
 #include "Battery.h"
 #include "HomeScreen.h"
 #include "LocoState.h"
@@ -98,7 +99,7 @@ void setup()
     state = &home_screen;
     state->handle(0);
     rotary_timer.start(100);
-    vsync.start(250);
+    vsync.start(100);
 
     screensaver.start(3 * 60 * 1000);
 }

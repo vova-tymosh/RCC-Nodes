@@ -10,19 +10,19 @@ private:
     SimpleKalmanFilter filter;
 
 public:
-    Rotary() : filter(50, 50, 0.3) {};
+    Rotary() : filter(1, 1, 0.2) {};
 
     void setup()
     {
         pinMode(IN_PIN, INPUT);
         pinMode(VCC_PIN, OUTPUT);
         digitalWrite(VCC_PIN, HIGH);
+        //analogReference & analogReadResolution is set in Battery class
     }
 
     int read()
     {
         float a = analogRead(IN_PIN) / TO_VALTAGE * 100;
-        // Serial.println("Rotary " + String(a));
         int smoothed = round(filter.updateEstimate(a));
         smoothed = constrain(smoothed, 0, 100);
         if (smoothed <= 2)

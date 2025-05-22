@@ -30,7 +30,7 @@ public:
     {
         int a = analogRead(PIN_VBAT);
         float vbatt = a * 3.6 / 4096 * 1510 / 510 * 1.04;
-        // Serial.println("Battery: " + String(a));
+        // Serial.println("Battery: " + String(vbatt));
         return filter.updateEstimate(vbatt);
     }
 
