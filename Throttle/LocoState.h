@@ -7,6 +7,7 @@ struct Controls {
     uint16_t direction;
     uint16_t lost;
     uint32_t timerBase;
+    uint8_t pump;
 };
 extern struct Controls controls;
 
@@ -48,6 +49,12 @@ public:
             processSet(value);
             break;
         }
+    }
+
+    virtual void onSetValue(const char *key, const char *value)
+    {
+        if (strcmp(key, "pump") == 0)
+            controls.pump = atoi(value);
     }
 };
 
