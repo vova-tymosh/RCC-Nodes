@@ -3,6 +3,8 @@
 #include "States.h"
 #include "Storage.h"
 #include "UI.h"
+#include "Rotary.h"
+
 
 extern UserInterface ui;
 extern Storage storage;
@@ -14,7 +16,6 @@ protected:
     const int index;
 
 public:
-    static const int LINES = 4;
     MenuItem(const char *name, const int index) : name(name), index(index) {}
     virtual void setup() {};
     virtual void render(char *line, size_t size) = 0;
@@ -35,6 +36,7 @@ public:
     void toggle()
     {
         pad.cycleSelected();
+        pad.getValue("pump");
     }
 };
 
@@ -153,6 +155,10 @@ MenuItem *menuItem[] = {&mi0, &mi1, &mi2, &mi3, &mi4, &mi5, &mi6, &mi7};
 
 class MenuScreen : public BaseState
 {
+    static const int LINES = 4;
+    static const int menuSize = sizeof(menuItem) / sizeof(menuItem[0]);
+    int selected = 0;
+    int rotaryOffset = 0;
 public:
     void setup()
     {
@@ -162,35 +168,33 @@ public:
 
     State handle(char key)
     {
-        static bool enter = true;
         if (key == 'h') {
-            enter = true;
             return STATE_HOME;
-        }
-        if (enter)
+        } else if (key == ON_ENTER) {
             pad.getValue("pump");
-
-        static int selected = 0;
-        if (key == 'd')
-            if (selected < sizeof(menuItem) / sizeof(menuItem[0]) - 1)
-                selected++;
-            else
-                selected = 0;
-        else if (key == 'm')
+            selected = 0;
+            rotaryOffset = rotary.read();
+        } else if (key == 'm') {
             menuItem[selected]->toggle();
+        }
+
+        selected = (rotaryOffset - rotary.read()) % menuSize;
+        if (selected < 0)
+            selected = menuSize + selected;
+        else if (selected >= menuSize)
+            selected = menuSize - 1;
 
         int base = 0;
-        if (selected >= MenuItem::LINES)
-            base = selected - MenuItem::LINES + 1;
+        if (selected >= LINES)
+            base = selected - LINES + 1;
         ui.startScreen();
-        for (int i = base; i < base + MenuItem::LINES; i++) {
+        for (int i = base; i < base + LINES; i++) {
             char line[ui.width + 1];
             ui.textColor(selected == i);
             menuItem[i]->render(line, sizeof(line));
             ui.display.println(line);
         }
         ui.display.display();
-        enter = false;
         return STATE_NONE;
     }
 };
