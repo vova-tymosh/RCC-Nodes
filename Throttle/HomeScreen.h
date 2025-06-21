@@ -3,13 +3,18 @@
 #include "Battery.h"
 #include "LocoState.h"
 #include "States.h"
+#include "Rotary.h"
 #include "Timer.h"
 #include "UI.h"
+
 
 extern UserInterface ui;
 
 class HomeScreen : public BaseState
 {
+    int oldThrottle = 0;
+    int rotaryOffset = 0;
+
 private:
     Timer battery_cycle;
 
@@ -109,6 +114,8 @@ public:
     {
         if (key == 'm') {
             return STATE_MENU;
+        } else if (key == ON_ENTER) {
+            rotaryOffset = rotary.read() - controls.throttle;
         } else if (key == 'd') {
             if (controls.direction != 0)
                 controls.direction = 0;
@@ -117,10 +124,27 @@ public:
             pad.setDirection(controls.direction);
             pad.askHeartbeat();
         }
+
+        int t = rotary.read() - rotaryOffset;
+        if (t > 100) {
+            t = 100;
+            rotaryOffset = rotary.read() - t;
+        } else if (t <= 0) {
+            t = 0;
+            rotaryOffset = rotary.read();
+        }
+        controls.throttle = t;
+        if (oldThrottle != controls.throttle) {
+            oldThrottle = controls.throttle;
+            pad.setThrottle(controls.throttle);
+            // pad.askHeartbeat();
+        }
+
         if (settings.getCachedInt("BigFont"))
             renderBig();
         else
             renderSmall();
+
         return STATE_NONE;
     }
 };

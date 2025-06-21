@@ -35,7 +35,8 @@ BaseState *state;
 Timer screensaver;
 Timer rotary_timer;
 Timer vsync;
-Rotary rotary;
+// Rotary rotary;
+Rotary rotary(D1, D0);
 Battery battery;
 struct Controls controls;
 Storage storage;
@@ -70,29 +71,22 @@ void handleHotKey(char key)
     }
 }
 
-void setupSerial()
-{
-    Serial.begin(115200);
-    Serial.println("Started");
-}
-
 const char *padKeys[] = {"loconame", "locoaddr", "BigFont"};
 const char *padValues[] = {"RCC_Keypad", "1", "0"};
 const int padKeySize = sizeof(padKeys) / sizeof(padKeys[0]);
 
-
 void setup()
 {
-    setupSerial();
+    Serial.begin(115200);
+    Serial.println("Started");
+
     storage.begin();
 
     settings.begin(padKeys, padValues, padKeySize);
 
-    pad.debugLevel = 10;
     pad.begin();
 
     battery.setup();
-    rotary.setup();
     ui.setup();
     menu_screen.setup();
 
@@ -102,6 +96,8 @@ void setup()
     vsync.start(100);
 
     screensaver.start(3 * 60 * 1000);
+
+    rotary.begin();
 }
 
 void loop()
@@ -111,6 +107,7 @@ void loop()
     bool wake = false;
 
     pad.loop();
+
     if (pad.update) {
         update = true;
         controls.direction = pad.state.direction;
@@ -122,17 +119,6 @@ void loop()
         handleHotKey(key);
         wake = true;
         update = true;
-    }
-
-    if (rotary_timer.hasFired()) {
-        static int oldThrottle = 0;
-        controls.throttle = rotary.read();
-        if (oldThrottle != controls.throttle) {
-            oldThrottle = controls.throttle;
-            pad.setThrottle(controls.throttle);
-            // pad.askHeartbeat();
-            update = true;
-        }
     }
 
     if (vsync.hasFired()) {
@@ -153,7 +139,7 @@ void loop()
         State newState = state->handle(key);
         if (newState) {
             state = states[newState];
-            state->handle(0);
+            state->handle(ON_ENTER);
         }
     }
 }
