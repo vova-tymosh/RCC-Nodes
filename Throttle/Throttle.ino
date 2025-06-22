@@ -33,9 +33,7 @@ BaseState *state;
 
 // *** The rest
 Timer screensaver;
-Timer rotary_timer;
 Timer vsync;
-// Rotary rotary;
 Rotary rotary(D1, D0);
 Battery battery;
 struct Controls controls;
@@ -91,10 +89,8 @@ void setup()
     menu_screen.setup();
 
     state = &home_screen;
-    state->handle(0);
-    rotary_timer.start(100);
+    state->handle(ON_ENTER);
     vsync.start(100);
-
     screensaver.start(3 * 60 * 1000);
 
     rotary.begin();

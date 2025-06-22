@@ -7,6 +7,7 @@ void rotaryUpdate();
 class Rotary
 {
     int pinA, pinB;
+    int lastPos;
 public:
     RotaryEncoder encoder;
 
@@ -25,7 +26,20 @@ public:
 
     int read()
     {
-        return encoder.getPosition();
+        lastPos = encoder.getPosition();
+        return lastPos;
+    }
+
+    int readAccelerated()
+    {
+        int newPos = encoder.getPosition();
+        if (abs(newPos - lastPos) > 3) {
+            int deltaTicks = 10 * (newPos - lastPos);
+            newPos = newPos + deltaTicks;
+            encoder.setPosition(newPos);
+        }
+        lastPos = newPos;
+        return newPos;
     }
 };
 extern Rotary rotary;

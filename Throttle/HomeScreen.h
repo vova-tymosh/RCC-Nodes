@@ -110,12 +110,28 @@ private:
 public:
     HomeScreen() : battery_cycle(500) {};
 
+
+    int getRotary()
+    {
+        int r = rotary.readAccelerated();
+        int t = 2 * (r - rotaryOffset);
+        if (t > 100) {
+            t = 100;
+            rotaryOffset = r - t/2;
+        } else if (t <= 0) {
+            t = 0;
+            rotaryOffset = r;
+        }
+        return t;
+    }
+
     State handle(char key)
     {
         if (key == 'm') {
             return STATE_MENU;
         } else if (key == ON_ENTER) {
-            rotaryOffset = rotary.read() - controls.throttle;
+            rotaryOffset = rotary.read() - controls.throttle / 2;
+            battery_cycle.start();
         } else if (key == 'd') {
             if (controls.direction != 0)
                 controls.direction = 0;
@@ -125,15 +141,7 @@ public:
             pad.askHeartbeat();
         }
 
-        int t = rotary.read() - rotaryOffset;
-        if (t > 100) {
-            t = 100;
-            rotaryOffset = rotary.read() - t;
-        } else if (t <= 0) {
-            t = 0;
-            rotaryOffset = rotary.read();
-        }
-        controls.throttle = t;
+        controls.throttle = getRotary();
         if (oldThrottle != controls.throttle) {
             oldThrottle = controls.throttle;
             pad.setThrottle(controls.throttle);
