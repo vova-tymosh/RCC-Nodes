@@ -129,6 +129,9 @@ public:
     {
         if (key == 'm') {
             return STATE_MENU;
+        } else if (key == 's') {
+            controls.throttle = 0;
+            rotaryOffset = rotary.read();
         } else if (key == ON_ENTER) {
             rotaryOffset = rotary.read() - controls.throttle / 2;
             battery_cycle.start();
