@@ -16,9 +16,9 @@
 const byte ROWS = 4;
 const byte COLS = 3;
 const char keyMap[ROWS][COLS] = {
-    {'h', 'm', 'd'},
+    {'h', 'b', 'm'},
+    {'l', 's', 'd'},
     {'1', '2', '3'},
-    {'4', '5', '6'},
 };
 byte row_pins[ROWS] = {8, 9, 10};
 byte col_pins[COLS] = {2, 6, 7};
@@ -51,19 +51,23 @@ void toggleFunction(int index)
 void handleHotKey(char key)
 {
     switch (key) {
-    case '1':
+    case 'l':
         menuItem[1]->toggle();
         break;
-    case '3':
+    case 's':
+        // controls.direction = 2;
+        controls.throttle = 0;
+        break;
+    case 'b':
         controls.timerBase = millis();
         break;
-    case '4':
+    case '1':
         toggleFunction(1);
         break;
-    case '5':
+    case '2':
         toggleFunction(3);
         break;
-    case '6':
+    case '3':
         toggleFunction(23);
         break;
     }
