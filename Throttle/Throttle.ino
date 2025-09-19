@@ -34,6 +34,7 @@ BaseState *state;
 // *** The rest
 Timer screensaver;
 Timer vsync;
+Timer throttleUpdate;
 Rotary rotary(D1, D0);
 Battery battery;
 struct Controls controls;
@@ -52,6 +53,7 @@ void handleHotKey(char key)
 {
     switch (key) {
     case 'l':
+        // 2nd menu item - lights
         menuItem[1]->toggle();
         break;
     case 's':
@@ -59,7 +61,10 @@ void handleHotKey(char key)
         controls.throttle = 0;
         break;
     case 'b':
-        controls.timerBase = millis();
+        // controls.timerBase = millis();
+        // 1st menu item - loco (move to next one)
+        menuItem[0]->toggle();
+        throttleUpdate.start(500);
         break;
     case '1':
         toggleFunction(1);
@@ -118,6 +123,11 @@ void loop()
         Serial.println("Press " + String(key));
         handleHotKey(key);
         wake = true;
+        update = true;
+    }
+
+    if (throttleUpdate.hasFiredOnce()) {
+        key = ON_ENTER;
         update = true;
     }
 
