@@ -1,12 +1,12 @@
 Change log:
-
-v0.5: Expand ground plane, add screw terminals, remove extra connectors
-v0.4: Remove bulk. Add sound, bemf, I2C GPIOs
-v0.3: Add bulk capacitor
-v0.2: Fix i2c
-v0.1: Very initial build
-
-
+    v0.8: Add resistor for LED
+    v0.7: Change MAX
+    v0.6: Add LED
+    v0.5: Add sound, bemf.
+          Remove bulk, add GPIOs 
+    v0.3: Add bulk capacitor
+    v0.2: Fix i2c
+    v0.1: Very initial build
 
 
 Schematic details and considerations:
