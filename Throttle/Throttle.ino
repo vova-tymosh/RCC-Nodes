@@ -1,4 +1,3 @@
-#define NO_DEBUG
 #include "Battery.h"
 #include "HomeScreen.h"
 #include "LocoState.h"
