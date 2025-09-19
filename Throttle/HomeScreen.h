@@ -133,6 +133,7 @@ public:
             controls.throttle = 0;
             rotaryOffset = rotary.read();
         } else if (key == ON_ENTER) {
+            controls.throttle = pad.state.throttle;
             rotaryOffset = rotary.read() - controls.throttle / 2;
             battery_cycle.start();
         } else if (key == 'd') {
@@ -148,7 +149,7 @@ public:
         if (oldThrottle != controls.throttle) {
             oldThrottle = controls.throttle;
             pad.setThrottle(controls.throttle);
-            // pad.askHeartbeat();
+            pad.askHeartbeat();
         }
 
         if (settings.getCachedInt("BigFont"))

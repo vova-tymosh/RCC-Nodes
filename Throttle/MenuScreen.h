@@ -36,6 +36,7 @@ public:
     void toggle()
     {
         pad.cycleSelected();
+        pad.askHeartbeat();
         pad.getValue("pump");
     }
 };

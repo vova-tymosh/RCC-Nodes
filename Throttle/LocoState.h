@@ -5,7 +5,6 @@
 struct Controls {
     uint16_t throttle;
     uint16_t direction;
-    uint16_t lost;
     uint32_t timerBase;
     uint8_t pump;
 };
