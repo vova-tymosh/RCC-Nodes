@@ -16,7 +16,9 @@ class HomeScreen : public BaseState
     int rotaryOffset = 0;
 
 private:
-    Timer battery_cycle;
+    Timer batteryCycle;
+    Timer throttleCycle;
+
 
     char renderDirection()
     {
@@ -31,7 +33,7 @@ private:
         static int animation;
         int level = battery.getLevel();
         if (battery.isCharging()) {
-            if (battery_cycle.hasFired()) {
+            if (batteryCycle.hasFired()) {
                 if (animation >= UserInterface::BATTERY_FULL)
                     animation = 0;
                 else
@@ -108,7 +110,7 @@ private:
     }
 
 public:
-    HomeScreen() : battery_cycle(500) {};
+    HomeScreen() : batteryCycle(500), throttleCycle(300) {};
 
 
     int getRotary()
@@ -135,7 +137,8 @@ public:
         } else if (key == ON_ENTER) {
             controls.throttle = pad.state.throttle;
             rotaryOffset = rotary.read() - controls.throttle / 2;
-            battery_cycle.start();
+            batteryCycle.start();
+            throttleCycle.start();
         } else if (key == 'd') {
             if (controls.direction != 0)
                 controls.direction = 0;
@@ -146,8 +149,8 @@ public:
         }
 
         controls.throttle = getRotary();
-        if (oldThrottle != controls.throttle) {
-            oldThrottle = controls.throttle;
+        if ((pad.state.throttle != controls.throttle) && throttleCycle.hasFired()) {
+            // oldThrottle = controls.throttle;
             pad.setThrottle(controls.throttle);
             pad.askHeartbeat();
         }

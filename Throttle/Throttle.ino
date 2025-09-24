@@ -1,3 +1,4 @@
+#define RCC_DEBUG 2
 #include "Battery.h"
 #include "HomeScreen.h"
 #include "LocoState.h"
@@ -56,14 +57,16 @@ void handleHotKey(char key)
         menuItem[1]->toggle();
         break;
     case 's':
-        // controls.direction = 2;
+        controls.direction = 2;
         controls.throttle = 0;
+        pad.setDirection(controls.direction);
+        pad.askHeartbeat();
         break;
     case 'b':
-        // controls.timerBase = millis();
-        // 1st menu item - loco (move to next one)
-        menuItem[0]->toggle();
-        throttleUpdate.start(500);
+        controls.timerBase = millis();
+        // // 1st menu item - loco (move to next one)
+        // menuItem[0]->toggle();
+        // throttleUpdate.start(500);
         break;
     case '1':
         toggleFunction(1);
