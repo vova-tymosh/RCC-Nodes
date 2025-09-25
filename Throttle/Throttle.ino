@@ -57,10 +57,7 @@ void handleHotKey(char key)
         menuItem[1]->toggle();
         break;
     case 's':
-        controls.direction = 2;
-        controls.throttle = 0;
-        pad.setDirection(controls.direction);
-        pad.askHeartbeat();
+        pad.emergencyStop();
         break;
     case 'b':
         controls.timerBase = millis();
@@ -128,10 +125,10 @@ void loop()
         update = true;
     }
 
-    if (throttleUpdate.hasFiredOnce()) {
-        key = ON_ENTER;
-        update = true;
-    }
+    // if (throttleUpdate.hasFiredOnce()) {
+    //     key = ON_ENTER;
+    //     update = true;
+    // }
 
     if (vsync.hasFired()) {
         update = true;
