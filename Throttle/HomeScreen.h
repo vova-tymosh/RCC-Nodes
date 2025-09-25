@@ -24,6 +24,8 @@ private:
     {
         if (pad.state.direction == 0)
             return 'R';
+        if (pad.state.direction == 2)
+            return '\xEF';
         else
             return 'F';
     }
@@ -150,7 +152,6 @@ public:
 
         controls.throttle = getRotary();
         if ((pad.state.throttle != controls.throttle) && throttleCycle.hasFired()) {
-            // oldThrottle = controls.throttle;
             pad.setThrottle(controls.throttle);
             pad.askHeartbeat();
         }
