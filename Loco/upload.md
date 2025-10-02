@@ -3,7 +3,7 @@
 Here is how to upload software to your new decoder. By this moment you should have your motherboard fabricated and CPU soldered - all ready to be turned alive. Actually you may upload software before you solder. The order of these two is unimportant.
 
 
-1. Prepare software file from the release you downloaded before - Software_RccDecoder_SimpleWT.bin (there will be more options for software packages later).
+1. Gte the software file from the release you downloaded before - Software_RccDecoder.bin.
 2. Go to [epstool](https://espressif.github.io/esptool-js/). This is the thing that uploads software from your computer to the decoder CPU.
 3. Click on **Connect**. It will show you a popup with the list of serial ports on your computer, remember them (or write the names down). Click Cancel for now.
 4. Now, connect your CPU/decoder to your computer using USB-C cable. Click **Connect** again. Now the list would be one record longer - the new guy is what you need to select, this is your CPU/decoder. Once you do select it the screen changes a little and it is ready to get your software file.
