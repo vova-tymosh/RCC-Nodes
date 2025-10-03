@@ -5,28 +5,38 @@ Here is how to configure your decoder.
 1. Power on your decoder (connect USB or if the CPU is already soldered, connect the battery to the board).
 2. Using your phone, tablet or computer connect to _RCC_Loco_ WiFi. Password is also _RCC_Loco_.
 3. Open browser and go to http://192.168.4.1
-4. You will see the list of configuration parameters, see the screenshot 1 down below.
+4. You will see the list of configuration values. They are similar to DCC CV values.
 5. Change the settings as per instructions below and click Submit.
+
+## Loco identification
+
+**locoaddr** - Loco address like in DCC, default is 3. If you put an address greater than 127 it will show in your WiThrottle app as a Long address. Smaller numbers will be shown as Short.
+
+**loconame** - Loco name which would be shown on your Throttle/Controller. Default is RCC.
 
 
 ## Access Point vs Home Wifi
-Chose if you want to run your decoder on its own WiFi, or to be connected to your home network:
-   - If you want the decoder to have its own WiFi, to be an access point, change the "wifiap" line to "ON". You may change WiFi name (WiFiSSID) and password if you want to. If you do change it you’d need to reconnect your phone/tablet/computer to this WiFi after you are done. This mode is good if your layout is outside of your home WiFi. The only downside is your phone/tablet/computer will not have internet access while it is connected to this WiFi. Might be a good idea to use an old device just as a throttle (always connected to this WiFi only).
-   - Alternatively, you may connect your decoder to your home network. For that type "OFF" in eth "wifiap" field. After that provide your home WiFi SSID and password. Just make sure you are connecting to the 2.4GHz WiFi. The 5GHz is not supported.
+
+There are two modes of operation with regards to WiFi. A loco may work as its own access point or it can be connected to your home WiFi. The first case is better if your layot is outside of your home WiFi range. The second one is better if you have multiple locomotives and other rairoad elements that you want to control.
+
+**wifiap** - Set this parameter to ON in case you want Loco to run as its own network. Set it OFF if you want to connect it to your home WiFi. Make sure you are connecting to the 2.4GHz WiFi, the 5GHz is not supported.
+
+**wifissid** - This is the name of the WiFi network. In case **wifiap** is ON this is the name of your Loco network (default is _RCC_Loco_). If **wifiap** is OFF this would be the name of your home wifi.
+
+**wifipwd** - This is the password of the WiFi network. In case **wifiap** is ON this is the password of your Loco network (default is _RCC_Loco_). If **wifiap** is OFF this would be the password of your home wifi.
 
 
 ## MQTT vs WiThrottle
-If you keep "mqtt" "OFF" the loco will work in WiThrottle mode. In this mode you connect your WiThrottle compatible app directly to the Loco. If you flip it "ON" you'd also need to privide "broker", the IP address of your MQTT broker.
-7. The LocoName and LocoAddress are a DCC-like name and address to identify your loco in the app. Default name is RCC and address is 3. If you put an address greater than 127 it will show in your WiThrottle app as a Long address. Smaller numbers will be shown as Short.
-8. Hit Submit and then power cycle the decoder.
+
+There are two protocols RCC supports - WiThrottle and MQTT. WiThrottle is simpler solution, it doesn't need central station. You'd need the RCC decoder and an app that speaks WiThrottle. You may find the list of such apps on [JRMI WiThrottle](https://www.jmri.org/help/en/package/jmri/jmrit/withrottle/UserInterface.shtml) page. This protocol was designed for command stations like DCC-EX. In case of RCC it runs right on the decoder itself. This creates a limitation - you would be able to control only one locomotive at a time. It is possible to switch between locomotives, it's just less conviniet. To switch you'd have to reconnect to another WiThrottle (which runs on another locomotive).
+
+If you want to control multiple locomotives and other railroad equipment you'd need JRMI. You may still use the same apps or any other apps that talks to JRMI. More details you may find on the [JRMI](https://www.jmri.org/) page). The protocol that RCC uses to comunicate with JRMI is MQTT. Learn more about this on [JRMI MQTT](https://www.jmri.org/help/en/html/hardware/mqtt/index.shtml) page.
 
 
-If you selected "NO" for "mqtt" (step 6) your Loco decoder would work in WiThrottle mode. You'd need an app that speaks WiThrottle (like _Engine Driver_ for Android and _WiThrottle_ for iOS) as your Throttle/Controller. This is the simplest setup. You don't need anything else. The downside of this - you'd be able to control only one Loco at a time. It is possible to control multiple locomotives, but to switch between them you’d need to go all the way to the first screen of the app and select another WiThrottle server. Unfortunately, this limitation would not allow you to put several locomotives on the same app screen. To control your Loco make sure your phone/tablet is connected to the same WiFi you have set up on the step 5 above. You should see the same name you have used on step 7 above as an available WiThrottle server in the app. Click on it. Now you need to select your locomotive in the app, the same way you’d do that if you use DCC or JMRI or any other solution. To do so type the address (whatever was provided in the step 7 above) or just select the locomotive from the roster. Here you go - you are ready to control the loco/decoder.
+**mqtt** - Set this to ON to use JRMI/MQTT or OFF to use WiThrottle.
 
-If you want to quickly swich between locos you'd need to select "ON" for "mqtt" (step 6) and you'd need to install (JRMI)[https://www.jmri.org/]. I'll provide more details for the setup soon.
+**broker** - Used only if **mqtt** is ON, this is IP address of an MQTT broker.
 
+**brokerport** - Used only if **mqtt** is ON, this is a port of the an MQTT broker, usually 1883.
 
-## Screenshot of the config page
-
-![rcc web config](image/RCCWebConfig.png)
 
