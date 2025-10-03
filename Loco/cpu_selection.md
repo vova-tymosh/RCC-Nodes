@@ -1,5 +1,7 @@
 # CPU Selection
-RCC Decoder is based on the Seeed Studio Xiao modules, you can read more about them [here](https://www.seeedstudio.com/xiao-series-page). These are really tiny micro computers, like a thumb nail, compatible with Arduino. RCC supports several variants with WiFi, BLE/NRF connectivity. You'd likely need a WiFi solution, as it is more versatile and easier to build. Here is how this CPU, the Xiao module, look like:
+RCC Decoder is based on the Seeed Studio Xiao modules, you can read more about them [here](https://www.seeedstudio.com/xiao-series-page). These are really tiny micro computers, like a thumb nail, compatible with Arduino. RCC supports several variants with WiFi, BLE/NRF connectivity. It is recomended to use WiFi solution, as it is more versatile and easier to build. Here is how this CPU, the Xiao module, look like:
+
+
 ![Xiao](image/XIAO.jpg)
 
 
