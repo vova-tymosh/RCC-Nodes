@@ -1,6 +1,6 @@
 #pragma once
 #include "RCCState.h"
-#include "RCCKeypad.h"
+#include "RCCPad.h"
 
 struct Controls {
     uint16_t throttle;
@@ -10,7 +10,7 @@ struct Controls {
 };
 extern struct Controls controls;
 
-class Pad : public RCCKeypad 
+class Pad : public RCCPad 
 {
 public:
 

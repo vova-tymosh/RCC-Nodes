@@ -142,10 +142,10 @@ public:
             batteryCycle.start();
             throttleCycle.start();
         } else if (key == 'd') {
-            if (controls.direction != 0)
-                controls.direction = 0;
-            else
+            if (controls.direction == 0 || controls.direction > 1)
                 controls.direction = 1;
+            else
+                controls.direction = 0;
             pad.setDirection(controls.direction);
             pad.askHeartbeat();
         }

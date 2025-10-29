@@ -1,4 +1,4 @@
-#define RCC_DEBUG 2
+// #define RCC_DEBUG 2
 #include "Battery.h"
 #include "HomeScreen.h"
 #include "LocoState.h"
@@ -7,7 +7,7 @@
 #include "UI.h"
 #include <Keypad.h>
 
-#include "RCCKeypad.h"
+#include "RCCPad.h"
 #include "Storage.h"
 #include "Settings.h"
 #include "Timer.h"
@@ -77,9 +77,12 @@ void handleHotKey(char key)
     }
 }
 
-const char *padKeys[] = {"loconame", "locoaddr", "BigFont"};
-const char *padValues[] = {"RCC_Keypad", "1", "0"};
-const int padKeySize = sizeof(padKeys) / sizeof(padKeys[0]);
+const KeyValue padSettings[] = {
+    {"loconame",  "RCC_Pad"},
+    {"locoaddr",  "1"},
+    {"BigFont", "0"}
+};
+
 
 void setup()
 {
@@ -87,11 +90,8 @@ void setup()
     Serial.println("Started");
 
     storage.begin();
-
-    settings.begin(padKeys, padValues, padKeySize);
-
+    settings.begin(padSettings, sizeofarray(padSettings));
     pad.begin();
-
     battery.setup();
     ui.setup();
     menu_screen.setup();
