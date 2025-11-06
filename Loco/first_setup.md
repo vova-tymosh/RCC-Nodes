@@ -40,3 +40,9 @@ If you want to control multiple locomotives and other railroad equipment you'd n
 **brokerport** - Used only if **mqtt** is ON, this is a port of the an MQTT broker, usually 1883.
 
 
+## Screeenshots:
+
+
+### 1. Config page:
+![start](image/settings.png)
+
